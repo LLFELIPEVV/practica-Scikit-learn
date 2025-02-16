@@ -1,120 +1,128 @@
-# Importamos las bibliotecas necesarias
-import matplotlib.pyplot as plt  # Para crear gráficos
-import seaborn as sns  # Para hacer gráficos más bonitos y atractivos
-import pandas as pd  # Para trabajar con datos en forma de tablas (como Excel)
+# 📦 Importamos herramientas para trabajar con datos y gráficos
+import matplotlib.pyplot as plt  # Para dibujar gráficos
+import seaborn as sns  # Para hacer gráficos más claros y profesionales
+import pandas as pd  # Para organizar datos en tablas como Excel
 
-# Importamos herramientas de scikit-learn (una biblioteca para machine learning)
-# Para cargar un conjunto de datos de diabetes
-from sklearn.datasets import load_diabetes
-# Para usar un modelo de predicción llamado KNN
+# 🛠️ HERRAMIENTAS DE APRENDIZAJE AUTOMÁTICO:
+from sklearn.datasets import load_diabetes  # Datos de pacientes con diabetes
+# Modelo de predicción tipo "vecinos cercanos"
 from sklearn.neighbors import KNeighborsRegressor
-# Para escalar los datos (ajustar su escala)
-from sklearn.preprocessing import StandardScaler
-# Para crear un flujo de trabajo que combine varias etapas
-from sklearn.pipeline import Pipeline
-# Para buscar los mejores ajustes del modelo
-from sklearn.model_selection import GridSearchCV
+from sklearn.preprocessing import StandardScaler  # Ajustador de escalas numéricas
+from sklearn.pipeline import Pipeline  # Cadena de procesos automáticos
+from sklearn.model_selection import GridSearchCV  # Buscador de mejores ajustes
 
-# En machine learning, el proceso general es el siguiente:
-# 1. Cargar los datos.
-# 2. Dividir los datos en dos partes: X (características) e y (lo que queremos predecir).
+# 📝 PASOS BÁSICOS DEL APRENDIZAJE AUTOMÁTICO:
+# 1. Obtener datos (información de entrada).
+# 2. Separar los datos en características (X) y lo que queremos predecir (y).
 # 3. Crear un modelo que pueda aprender de los datos.
 # 4. Entrenar el modelo con los datos.
 # 5. Usar el modelo para hacer predicciones.
 
-# Cargamos el conjunto de datos de diabetes
-# `X` contiene las características (datos que usamos para hacer predicciones).
-# `y` contiene las etiquetas (lo que queremos predecir, en este caso, valores relacionados con la diabetes).
+# 📂 CARGAMOS LOS DATOS DE DIABETES
+# X = Características de los pacientes (edad, peso, análisis de sangre, etc.)
+# y = Progresión de la diabetes (lo que queremos predecir)
 X, y = load_diabetes(return_X_y=True)
 
-# Mostramos los datos cargados
-# Muestra las características (datos de entrada)
-print(f"Características (X): {X}")
-# Muestra las etiquetas (lo que queremos predecir)
-print(f"Etiquetas (y): {y}")
+# 🖨️ MOSTRAMOS LOS DATOS CARGADOS
+print("📊 Datos de entrada (características):")
+print(X)  # Tabla con números que representan las características
+print("\n🎯 Lo que queremos predecir:")
+print(y)  # Lista de valores que representan la progresión de la diabetes
 
-# Configuramos el estilo de los gráficos con Seaborn
-# Usamos un fondo con cuadrícula para que los gráficos se vean mejor
+# 🎨 CONFIGURAMOS EL ESTILO DE LOS GRÁFICOS
+# Fondo con cuadrícula para mejor visualización
 sns.set_theme(style="whitegrid")
 
-# --- Primer caso: Sin escalar los datos ---
-# Creamos un modelo de regresión K-Nearest Neighbors (KNN)
-# KNN es un algoritmo que predice el valor de un punto basándose en los valores de los puntos más cercanos.
-mod = KNeighborsRegressor()
+# --- 🔍 PRIMER EXPERIMENTO: Sin normalizar los datos ---
+# Creamos un modelo básico de predicción (KNN: Vecinos más cercanos)
+modelo_basico = KNeighborsRegressor()
 
-# Entrenamos el modelo con los datos
-# El método `fit` hace que el modelo "aprenda" de los datos (X, y).
-mod.fit(X, y)
+# 🎓 ENTRENAMOS EL MODELO CON LOS DATOS
+modelo_basico.fit(X, y)
 
-# Usamos el modelo entrenado para hacer predicciones sobre los mismos datos (X)
-# `pred_sin_escalado` contendrá las predicciones que el modelo hace para cada valor de X.
-pred_sin_escalado = mod.predict(X)
+# 🔮 HACEMOS PREDICCIONES CON EL MODELO BÁSICO
+predicciones_sin_ajuste = modelo_basico.predict(X)
 
-# Graficamos los resultados sin escalar los datos
-plt.figure(figsize=(10, 5))  # Definimos el tamaño del gráfico
-# Creamos el primer gráfico (1 fila, 2 columnas, posición 1)
-plt.subplot(1, 2, 1)
+# 📊 CREAMOS GRÁFICOS PARA COMPARAR PREDICCIONES Y VALORES REALES
+plt.figure(figsize=(15, 5))  # Tamaño del lienzo para los gráficos
 
-# Usamos un gráfico de dispersión para comparar las predicciones con los valores reales
-sns.scatterplot(x=pred_sin_escalado, y=y, alpha=0.6,
-                color='blue')  # Puntos azules con transparencia
+# 📈 GRÁFICO 1: Predicciones sin normalizar los datos
+plt.subplot(1, 3, 1)  # Posición 1 en una fila de 3 gráficos
+sns.scatterplot(x=predicciones_sin_ajuste, y=y,
+                alpha=0.6, color='blue')  # Puntos azules
 plt.plot([min(y), max(y)], [min(y), max(y)], color='red',
-         linestyle='--')  # Línea de referencia (y = x)
-plt.xlabel("Predicciones (sin escalado)")  # Etiqueta del eje X
+         linestyle='--')  # Línea de referencia ideal
+plt.xlabel("Predicciones (sin normalizar)")  # Etiqueta del eje X
 plt.ylabel("Valores reales")  # Etiqueta del eje Y
-# Título del gráfico
-plt.title("Predicciones vs Valores reales (sin escalado)")
+plt.title("Predicciones sin normalización")  # Título del gráfico
 
-# --- Segundo caso: Escalando los datos ---
-# Es mejor escalar los datos antes de pasarlos al modelo.
-# Escalar significa ajustar los datos para que tengan una media de 0 y una desviación estándar de 1.
-# Creamos una tubería (pipeline) que primero escala los datos y luego aplica el modelo KNN.
-pipe = Pipeline([
-    ("scale", StandardScaler()),  # Escala los datos
-    ("model", KNeighborsRegressor(n_neighbors=1))  # Aplica el modelo KNN
+# --- 🧪 SEGUNDO EXPERIMENTO: Normalizando los datos ---
+# Mejoramos el proceso: primero normalizamos los datos, luego hacemos predicciones
+tuberia_mejorada = Pipeline([
+    ("escalador", StandardScaler()),  # Paso 1: Normalizar los datos
+    ("modelo", KNeighborsRegressor(n_neighbors=1))  # Paso 2: Predecir con KNN
 ])
 
-# Entrenamos la tubería con los datos
-pipe.fit(X, y)
+# 🎓 ENTRENAMOS EL MODELO MEJORADO
+tuberia_mejorada.fit(X, y)
 
-# Hacemos predicciones sobre los mismos datos (X)
-pred_con_escalado = pipe.predict(X)
+# 🔮 HACEMOS PREDICCIONES CON EL MODELO MEJORADO
+predicciones_con_ajuste = tuberia_mejorada.predict(X)
 
-# Graficamos los resultados con los datos escalados
-# Creamos el segundo gráfico (1 fila, 2 columnas, posición 2)
-plt.subplot(1, 2, 2)
-sns.scatterplot(x=pred_con_escalado, y=y, alpha=0.6,
-                color='green')  # Puntos verdes con transparencia
+# 📈 GRÁFICO 2: Predicciones con datos normalizados
+plt.subplot(1, 3, 2)  # Posición 2 en una fila de 3 gráficos
+sns.scatterplot(x=predicciones_con_ajuste, y=y,
+                alpha=0.6, color='green')  # Puntos verdes
 plt.plot([min(y), max(y)], [min(y), max(y)], color='red',
-         linestyle='--')  # Línea de referencia (y = x)
-plt.xlabel("Predicciones (con escalado)")  # Etiqueta del eje X
-plt.ylabel("Valores reales")  # Etiqueta del eje Y
-# Título del gráfico
-plt.title("Predicciones vs Valores reales (con escalado)")
+         linestyle='--')  # Línea de referencia ideal
+plt.xlabel("Predicciones (con normalización)")
+plt.ylabel("Valores reales")
+plt.title("Predicciones con normalización")
 
-# --- Tercer caso: Buscando los mejores ajustes del modelo ---
-# Para mejorar el modelo, podemos buscar los mejores hiperparámetros (ajustes del modelo).
-# Usamos una técnica llamada GridSearchCV, que prueba diferentes combinaciones de parámetros.
-# Además, divide los datos en partes para entrenar y validar el modelo varias veces (esto se llama validación cruzada).
-# Muestra los parámetros que podemos ajustar
-print(f"Parámetros disponibles: {pipe.get_params()}")
+# --- 🚀 TERCER EXPERIMENTO: Optimizando el modelo ---
+# Buscamos automáticamente la mejor configuración para el modelo
+print("\n⚙️ Parámetros que podemos ajustar:", tuberia_mejorada.get_params())
 
-# Creamos un objeto GridSearchCV para buscar los mejores valores de `n_neighbors` (número de vecinos en KNN)
-mod = GridSearchCV(
-    estimator=pipe,  # Usamos la tubería que creamos antes
-    # Probamos valores de 1 a 10
-    param_grid={"model__n_neighbors": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
-    cv=3  # Número de divisiones para la validación cruzada
+# Configuramos el buscador de mejores ajustes (GridSearchCV)
+buscador_optimizador = GridSearchCV(
+    estimator=tuberia_mejorada,  # Usamos el modelo mejorado
+    # Probamos diferentes valores
+    param_grid={"modelo__n_neighbors": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
+    cv=3  # Validación cruzada: prueba cada opción 3 veces
 )
 
-# Entrenamos el modelo con GridSearchCV
-mod.fit(X, y)
+# 🎓 ENTRENAMOS EL BUSCADOR PARA ENCONTRAR LA MEJOR CONFIGURACIÓN
+buscador_optimizador.fit(X, y)
 
-# Guardamos los resultados de la búsqueda en un DataFrame (tabla)
-df = pd.DataFrame(mod.cv_results_)
-# Guardamos la tabla en un archivo CSV para revisarla después
-df.to_csv('cv_results.csv', index=False)
+# 💾 GUARDAMOS LOS RESULTADOS EN UN ARCHIVO CSV
+resultados_experimentos = pd.DataFrame(buscador_optimizador.cv_results_)
+resultados_experimentos.to_csv('resultados_optimizacion.csv', index=False)
 
-# Mostramos ambos gráficos juntos
-plt.tight_layout()  # Ajusta el espacio entre los gráficos para que no se solapen
-plt.show()  # Muestra los gráficos en una ventana
+# 🏆 MOSTRAMOS LOS MEJORES PARÁMETROS ENCONTRADOS
+print(f"✅ Mejores parámetros: {buscador_optimizador.best_params_}")
+
+# 🔧 ACTUALIZAMOS EL MODELO CON LOS MEJORES PARÁMETROS
+tuberia_mejorada.set_params(**buscador_optimizador.best_params_)
+tuberia_mejorada.fit(X, y)  # Reentrenamos el modelo con la mejor configuración
+
+# 🔮 HACEMOS PREDICCIONES CON EL MODELO OPTIMIZADO
+predicciones_optimizadas = tuberia_mejorada.predict(X)
+
+# 📈 GRÁFICO 3: Predicciones con la mejor configuración
+plt.subplot(1, 3, 3)  # Posición 3 en una fila de 3 gráficos
+sns.scatterplot(x=predicciones_optimizadas, y=y, alpha=0.6,
+                color='purple')  # Puntos morados
+plt.plot([min(y), max(y)], [min(y), max(y)], color='red',
+         linestyle='--')  # Línea de referencia ideal
+plt.xlabel("Predicciones (mejor configuración)")
+plt.ylabel("Valores reales")
+plt.title("Predicciones optimizadas")
+
+# 🖼️ MOSTRAMOS TODOS LOS GRÁFICOS JUNTOS
+plt.tight_layout()  # Ajustamos el espacio entre gráficos
+plt.show()  # Abrimos la ventana con los gráficos
+
+# 📚 INFORMACIÓN ADICIONAL SOBRE LOS DATOS
+diabetes = load_diabetes()
+print("\nDescripción técnica del conjunto de datos:")
+print(diabetes.DESCR)  # Explicación médica de las variables
