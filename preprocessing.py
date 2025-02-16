@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt  # Para crear gráficos y visualizaciones
 import seaborn as sns  # Para hacer gráficos más bonitos y profesionales
 
 # 🛠️ Importamos herramienta para ajustar escalas de los datos
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, QuantileTransformer
 
 # 🎨 Configuramos el estilo visual de todos los gráficos
 # Fondo claro y colores modernos
@@ -76,3 +76,49 @@ plt.xlabel("Valores Estandarizados (media = 0, desviación = 1)", labelpad=10)
 plt.ylabel("Cantidad de Datos", labelpad=10)
 plt.grid(axis='y', alpha=0.3)
 plt.show()
+
+# 🔄 TRANSFORMACIÓN DE DATOS CON MÉTODO CUANTILES
+# Transformación que ordena y divide los datos en grupos iguales para mejor distribución
+# Método especial para manejar valores extremos y distribuciones irregulares
+
+# 📏 APLICAMOS LA TRANSFORMACIÓN CON 100 NIVELES DE PRECISIÓN
+# Usamos 100 divisiones para mayor precisión (como reglas de medición más finas)
+X_new = QuantileTransformer(n_quantiles=100).fit_transform(X)
+
+# 📊 CREAMOS UN GRÁFICO PROFESIONAL PARA ENTENDER LOS RESULTADOS
+# Tamaño ideal para gráficos claros (10 pulgadas de ancho x 6 de alto)
+plt.figure(figsize=(10, 6))
+
+# 🎨 DISEÑAMOS EL GRÁFICO DE PUNTOS MEJORADO
+scatter = sns.scatterplot(
+    x=X_new[:, 0],  # Valores transformados en el eje horizontal
+    y=X_new[:, 1],  # Valores transformados en el eje vertical
+    hue=y,  # Colorear puntos según pertenezcan al Grupo A (Sí/No)
+    # Azul para el Grupo A, Amarillo para otros
+    palette={True: "#2D708E", False: "#FDE725"},
+    edgecolor="black",  # Borde negro para diferenciar puntos superpuestos
+    alpha=0.8,  # Transparencia para ver densidad de puntos
+    s=80  # Tamaño ideal para visualización clara
+)
+
+# 🔍 PERSONALIZAMOS LA INFORMACIÓN DEL GRÁFICO
+# Título descriptivo en dos líneas
+plt.title(
+    "Datos Reorganizados con Método Cuantiles\n(Mayor precisión en análisis)", pad=20)
+# Etiqueta eje horizontal con espacio adicional
+plt.xlabel("Posición X Transformada", labelpad=10)
+# Etiqueta eje vertical con espacio adicional
+plt.ylabel("Posición Y Transformada", labelpad=10)
+plt.legend(title="¿Pertenece al Grupo A?", loc="upper right",
+           labels=['No', 'Sí'])  # Cuadro explicativo de colores
+
+# ➕ LÍNEAS GUÍA PARA MEJOR ORIENTACIÓN
+# Línea horizontal central de referencia
+plt.axhline(0, color='gray', linestyle='--', linewidth=1)
+# Línea vertical central de referencia
+plt.axvline(0, color='gray', linestyle='--', linewidth=1)
+
+# 🟦 CUADRÍCULA ESTILIZADA PARA FACILITAR LA LECTURA
+plt.grid(alpha=0.3, linestyle=':')  # Líneas punteadas suaves como guía visual
+
+plt.show()  # Mostrar el gráfico final
