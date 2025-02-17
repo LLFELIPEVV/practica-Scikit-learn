@@ -1,11 +1,19 @@
-# 📦 Importamos herramientas para trabajar con datos y gráficos
-import numpy as np  # Para cálculos matemáticos
-import pandas as pd  # Para trabajar con tablas de datos (como Excel)
-import matplotlib.pyplot as plt  # Para crear gráficos y visualizaciones
-import seaborn as sns  # Para hacer gráficos más bonitos y profesionales
+# 📂 HERRAMIENTAS PARA MANEJAR DATOS
+import numpy as np  # Calculadora avanzada para operaciones matemáticas con datos
+# Organizador de datos tipo Excel (tablas y análisis básico)
+import pandas as pd
 
-# 🛠️ Importamos herramienta para ajustar escalas de los datos
+# 🎨 HERRAMIENTAS PARA VISUALIZACIÓN
+import matplotlib.pyplot as plt  # Pincel digital para crear gráficos básicos
+import seaborn as sns  # Pincel profesional para gráficos atractivos y detallados
+
+# 🔧 HERRAMIENTAS DE MACHINE LEARNING
+# Ajustadores de escala
 from sklearn.preprocessing import StandardScaler, QuantileTransformer
+# Clasificador tipo "vecinos cercanos"
+from sklearn.neighbors import KNeighborsClassifier
+# Cadena de procesos automáticos (escalado + modelo)
+from sklearn.pipeline import Pipeline
 
 # 🎨 Configuramos el estilo visual de todos los gráficos
 # Fondo claro y colores modernos
@@ -122,3 +130,85 @@ plt.axvline(0, color='gray', linestyle='--', linewidth=1)
 plt.grid(alpha=0.3, linestyle=':')  # Líneas punteadas suaves como guía visual
 
 plt.show()  # Mostrar el gráfico final
+
+
+# 🎯 FUNCIÓN PARA COMPARAR MÉTODOS DE ESCALADO
+def plot_output(scaler):
+    """
+    Crea una comparación visual de 3 elementos:
+    1. Datos originales
+    2. Datos transformados
+    3. Predicciones del modelo
+
+    Parámetro:
+    scaler: Herramienta para ajustar la escala de los datos
+    """
+
+    # 🔧 Configuramos el proceso de análisis (escalado + modelo predictivo)
+    pipe = Pipeline([
+        ("scale", scaler),  # Paso 1: Ajustar escala
+        # Paso 2: Modelo de predicción
+        ("model", KNeighborsClassifier(n_neighbors=20, weights='distance'))
+    ])
+
+    # 🧠 Entrenamos el modelo con nuestros datos
+    pipe.fit(X, y)
+
+    # 🔮 Generamos predicciones para todos los puntos
+    pred = pipe.predict(X)
+
+    # 📊 Configuramos el lienzo para 3 gráficos
+    plt.figure(figsize=(15, 5))
+    sns.set_theme(style="whitegrid", palette="viridis")  # Estilo profesional
+
+    # 🖼️ Gráfico 1: Datos Originales
+    plt.subplot(1, 3, 1)
+    sns.scatterplot(x=X[:, 0], y=X[:, 1], hue=y,
+                    palette="deep", edgecolor="black")
+    plt.title("Datos Originales\n(Estado natural de los datos)")
+    plt.xlabel("Característica 1")
+    plt.ylabel("Característica 2")
+    plt.legend(title="Categoría")
+
+    # 🖼️ Gráfico 2: Datos Transformados
+    plt.subplot(1, 3, 2)
+    X_tfm = scaler.transform(X)
+    sns.scatterplot(x=X_tfm[:, 0], y=X_tfm[:, 1], hue=y,
+                    palette="deep", edgecolor="black")
+    plt.title(f"Datos Transformados\n({scaler.__class__.__name__})")
+    plt.xlabel("Característica 1 Escalada")
+    plt.ylabel("Característica 2 Escalada")
+    plt.legend().remove()
+
+    # 🖼️ Gráfico 3: Superficie de Decisión
+    plt.subplot(1, 3, 3)
+    # Generamos 5000 puntos aleatorios para mapear predicciones
+    X_new = np.concatenate([
+        np.random.uniform(0, X[:, 0].max(), (5000, 1)),
+        np.random.uniform(0, X[:, 1].max(), (5000, 1))
+    ], axis=1)
+
+    # Calculamos probabilidades de predicción
+    y_proba = pipe.predict_proba(X_new)
+
+    # Graficamos el mapa de predicciones con degradado de color
+    sns.scatterplot(x=X_new[:, 0], y=X_new[:, 1], hue=y_proba[:, 1],
+                    palette="coolwarm", edgecolor="none", alpha=0.8)
+    plt.title("Superficie de Decisión\n(Probabilidad de pertenencia a clase)")
+    plt.xlabel("Característica 1")
+    plt.ylabel("Característica 2")
+    plt.legend().remove()
+
+    plt.tight_layout()
+    plt.show()
+
+
+# 🔄 PRIMER EXPERIMENTO: Escalado Estándar
+print("=== Resultados con Escalado Estándar ===")
+scaler_std = StandardScaler()
+plot_output(scaler=scaler_std)
+
+# 🔄 SEGUNDO EXPERIMENTO: Escalado por Cuantiles
+print("\n=== Resultados con Escalado por Cuantiles ===")
+scaler_qt = QuantileTransformer(n_quantiles=100)
+plot_output(scaler=scaler_qt)
