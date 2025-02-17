@@ -9,11 +9,12 @@ import seaborn as sns  # Pincel profesional para gráficos atractivos y detallad
 
 # 🔧 HERRAMIENTAS DE MACHINE LEARNING
 # Ajustadores de escala
-from sklearn.preprocessing import StandardScaler, QuantileTransformer
+from sklearn.preprocessing import StandardScaler, QuantileTransformer, PolynomialFeatures
 # Clasificador tipo "vecinos cercanos"
 from sklearn.neighbors import KNeighborsClassifier
 # Cadena de procesos automáticos (escalado + modelo)
 from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
 
 # 🎨 Configuramos el estilo visual de todos los gráficos
 # Fondo claro y colores modernos
@@ -155,7 +156,7 @@ def plot_output(scaler):
     pipe.fit(X, y)
 
     # 🔮 Generamos predicciones para todos los puntos
-    pred = pipe.predict(X)
+    # pred = pipe.predict(X)
 
     # 📊 Configuramos el lienzo para 3 gráficos
     plt.figure(figsize=(15, 5))
@@ -212,3 +213,54 @@ plot_output(scaler=scaler_std)
 print("\n=== Resultados con Escalado por Cuantiles ===")
 scaler_qt = QuantileTransformer(n_quantiles=100)
 plot_output(scaler=scaler_qt)
+
+# 📂 CARGAMOS Y PREPARAMOS LOS DATOS
+# Abrimos nuestro archivo de datos (como un libro de Excel digital)
+df = pd.read_csv("drawndata2.csv")
+
+# 🎯 SEPARAMOS LA INFORMACIÓN:
+X = df[['x', 'y']].values  # Usamos las columnas x e y como coordenadas
+y = df['z'] == "a"  # Creamos etiquetas: True para 'a', False para otros valores
+
+# 🎨 CONFIGURACIÓN VISUAL
+# Fondo claro y colores vibrantes
+sns.set_theme(style="whitegrid", palette="bright")
+
+# 📊 GRÁFICO 1: DATOS ORIGINALES
+plt.figure(figsize=(10, 6))  # Tamaño profesional para mejor visualización
+sns.scatterplot(x=X[:, 0], y=X[:, 1], hue=y, palette={True: "#FF6B6B", False: "#4ECDC4"},
+                edgecolor="black", s=80, alpha=0.9)
+plt.title("Distribución Original de los Datos",
+          pad=15, fontsize=14)  # Título claro
+plt.xlabel("Coordenada X", labelpad=10)  # Etiqueta descriptiva
+plt.ylabel("Coordenada Y", labelpad=10)
+plt.legend(title="Pertenece al Grupo A", labels=[
+           'No', 'Sí'])  # Leyenda explicativa
+plt.show()
+
+# 🔧 CONFIGURACIÓN DEL MODELO INTELIGENTE
+pipe = Pipeline([
+    # Creamos combinaciones de características (ej: x², y², xy)
+    ("scale", PolynomialFeatures()),
+    ("model", LogisticRegression())  # Modelo para encontrar patrones complejos
+])
+
+# 🎓 ENTRENAMOS EL MODELO
+# El modelo aprende patrones y hace predicciones
+pred = pipe.fit(X, y).predict(X)
+
+# 📈 GRÁFICO 2: PREDICCIONES DEL MODELO
+plt.figure(figsize=(10, 6))
+scatter = sns.scatterplot(x=X[:, 0], y=X[:, 1], hue=pred, palette={True: "#FF6B6B", False: "#4ECDC4"},
+                          edgecolor="black", s=80, alpha=0.9)
+plt.title("Límites de Decisión del Modelo", pad=15, fontsize=14)
+plt.xlabel("Coordenada X", labelpad=10)
+plt.ylabel("Coordenada Y", labelpad=10)
+
+# 🖌️ Personalización adicional
+# Título de leyenda actualizado
+scatter.legend_.set_title("Predicción del Modelo")
+for text in scatter.legend_.texts:  # Cambiamos los textos de la leyenda
+    text.set_text("Grupo A" if text.get_text() == "True" else "Otros grupos")
+
+plt.show()
