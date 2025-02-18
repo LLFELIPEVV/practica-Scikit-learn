@@ -9,7 +9,7 @@ import seaborn as sns  # Pincel profesional para gráficos atractivos y detallad
 
 # 🔧 HERRAMIENTAS DE MACHINE LEARNING
 # Ajustadores de escala
-from sklearn.preprocessing import StandardScaler, QuantileTransformer, PolynomialFeatures
+from sklearn.preprocessing import StandardScaler, QuantileTransformer, PolynomialFeatures, OneHotEncoder
 # Clasificador tipo "vecinos cercanos"
 from sklearn.neighbors import KNeighborsClassifier
 # Cadena de procesos automáticos (escalado + modelo)
@@ -264,3 +264,38 @@ for text in scatter.legend_.texts:  # Cambiamos los textos de la leyenda
     text.set_text("Grupo A" if text.get_text() == "True" else "Otros grupos")
 
 plt.show()
+
+# 🎯 EJEMPLO DE DATOS CATEGÓRICOS
+# Creamos un arreglo de categorías (texto) que queremos convertir a números
+arr = np.array(["low", "low", "high", "medium"]).reshape(-1,
+                                                         1)  # Formato requerido: matriz de 1 columna
+print("📋 Datos categóricos originales:")
+print(arr)  # Mostramos cómo se ven los datos antes de la transformación
+
+# 🔧 CONFIGURAMOS EL CODIFICADOR ONE-HOT
+# OneHotEncoder convierte categorías en vectores numéricos (ideal para modelos de ML)
+enc = OneHotEncoder(sparse_output=False,  # Devuelve una matriz densa (fácil de leer)
+                    handle_unknown='ignore')  # Ignora categorías no vistas durante el entrenamiento
+
+# 🛠️ TRANSFORMAMOS LOS DATOS
+# Aprendemos las categorías y las convertimos
+encoded_arr = enc.fit_transform(arr)
+print("\n🔢 Datos codificados (One-Hot Encoding):")
+print(encoded_arr)  # Mostramos el resultado de la transformación
+
+# 💡 EXPLICACIÓN DEL RESULTADO:
+# Cada categoría se convierte en un vector binario:
+# - "low" → [1, 0, 0]
+# - "medium" → [0, 1, 0]
+# - "high" → [0, 0, 1]
+
+# 🧪 PRUEBA CON UNA CATEGORÍA NUEVA
+# Simulamos una categoría que no estaba en los datos originales
+# Transformamos "zero" usando el codificador ya entrenado
+new_category = enc.transform([["zero"]])
+print("\n⚠️ Resultado para categoría nueva ('zero'):")
+print(new_category)  # Muestra cómo se manejan categorías desconocidas
+
+# 📝 NOTA IMPORTANTE:
+# - handle_unknown='ignore' hace que categorías nuevas se codifiquen como [0, 0, 0]
+# - Esto evita errores cuando el modelo encuentra datos no vistos durante el entrenamiento
