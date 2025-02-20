@@ -43,12 +43,13 @@ print(new_df)
 
 grid = GridSearchCV(
     estimator=LogisticRegression(max_iter=1000),
-    param_grid={'class_weight': [{0: 1, 1: v} for v in range(1, 4)]},
+    param_grid={'class_weight': [{0: 1, 1: v}
+                                 for v in np.linspace(1, 20, 30)]},
     scoring={'precision': make_scorer(
         precision_score), 'recall': make_scorer(recall_score)},
     refit='precision',
     return_train_score=True,
-    cv=4,
+    cv=10,
     n_jobs=-1
 )
 
@@ -57,3 +58,10 @@ print(grid.fit(X, y))
 new_df = pd.DataFrame(grid.cv_results_)
 
 print(new_df)
+
+plt.figure(figsize=(12, 4))
+for score in ['mean_test_recall', 'mean_test_precision']:
+    plt.plot([_[1] for _ in new_df['param_class_weight']],
+             new_df[score], label=score)
+plt.legend()
+plt.show()
