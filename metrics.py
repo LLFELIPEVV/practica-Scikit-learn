@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.linear_model import LogisticRegression
 from sklearn. model_selection import GridSearchCV
+from sklearn.metrics import precision_score, recall_score, make_scorer
 
 df = pd.read_csv('creditcard.csv')[:80_000]
 print(df.head(3))
@@ -16,9 +17,37 @@ print(f"Shapes of X={X.shape} y={y.shape}, #Fraud Cases {y.sum()}")
 mod = LogisticRegression(class_weight={0: 1, 1: 2}, max_iter=1000)
 print(mod.fit(X, y).predict(X).sum())
 
+lr = LogisticRegression()
+# help(lr.score)
+
 grid = GridSearchCV(
     estimator=LogisticRegression(max_iter=1000),
     param_grid={'class_weight': [{0: 1, 1: v} for v in range(1, 4)]},
+    cv=4,
+    n_jobs=-1
+)
+
+print(grid.fit(X, y))
+
+# Para decidir entre los dos es bueno pensar si nos preocupa mas los falsos positivos o los falsos negativos
+# Precision dice dado que predigo el fraude que tan preciso soy.
+presicion = precision_score(y, grid.predict(X))
+# Recall dice si obtuve todos los casos de fraude
+recall = recall_score(y, grid.predict(X))
+
+print(f"Precision: {presicion}, Recall: {recall}")
+
+new_df = pd.DataFrame(grid.cv_results_)
+
+print(new_df)
+
+grid = GridSearchCV(
+    estimator=LogisticRegression(max_iter=1000),
+    param_grid={'class_weight': [{0: 1, 1: v} for v in range(1, 4)]},
+    scoring={'precision': make_scorer(
+        precision_score), 'recall': make_scorer(recall_score)},
+    refit='precision',
+    return_train_score=True,
     cv=4,
     n_jobs=-1
 )
