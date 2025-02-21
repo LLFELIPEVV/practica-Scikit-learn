@@ -41,12 +41,19 @@ new_df = pd.DataFrame(grid.cv_results_)
 
 print(new_df)
 
+
+def min_recall_precision(y_true, y_pred):
+    recall = recall_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred)
+    return min(recall, precision)
+
+
 grid = GridSearchCV(
     estimator=LogisticRegression(max_iter=1000),
     param_grid={'class_weight': [{0: 1, 1: v}
                                  for v in np.linspace(1, 20, 30)]},
-    scoring={'precision': make_scorer(
-        precision_score), 'recall': make_scorer(recall_score)},
+    scoring={'precision': make_scorer(precision_score), 'recall': make_scorer(
+        recall_score), 'min_both': make_scorer(min_recall_precision)},
     refit='precision',
     return_train_score=True,
     cv=10,
@@ -60,15 +67,14 @@ new_df = pd.DataFrame(grid.cv_results_)
 print(new_df)
 
 plt.figure(figsize=(12, 4))
-for score in ['mean_test_recall', 'mean_test_precision']:
+for score in ['mean_test_recall', 'mean_test_precision', 'mean_test_min_both']:
     plt.plot([_[1] for _ in new_df['param_class_weight']],
              new_df[score], label=score)
 plt.legend()
 plt.show()
 
 plt.figure(figsize=(12, 4))
-df = pd.DataFrame(grid.cv_results_)
-for score in ['mean_test_recall', 'mean_test_precision']:
+for score in ['mean_test_recall', 'mean_test_precision', 'mean_test_min_both']:
     plt.scatter([_[1] for _ in new_df['param_class_weight']],
                 new_df[score], label=score)
 plt.legend()
