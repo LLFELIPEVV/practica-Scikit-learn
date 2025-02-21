@@ -65,3 +65,11 @@ for score in ['mean_test_recall', 'mean_test_precision']:
              new_df[score], label=score)
 plt.legend()
 plt.show()
+
+plt.figure(figsize=(12, 4))
+df = pd.DataFrame(grid.cv_results_)
+for score in ['mean_test_recall', 'mean_test_precision']:
+    plt.scatter([_[1] for _ in new_df['param_class_weight']],
+                new_df[score], label=score)
+plt.legend()
+plt.show()
