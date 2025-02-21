@@ -42,7 +42,8 @@ new_df = pd.DataFrame(grid.cv_results_)
 print(new_df)
 
 
-def min_recall_precision(y_true, y_pred):
+def min_recall_precision(est, X, y_true, sample_weight=None):
+    y_pred = est.predict(X)
     recall = recall_score(y_true, y_pred)
     precision = precision_score(y_true, y_pred)
     return min(recall, precision)
@@ -53,7 +54,7 @@ grid = GridSearchCV(
     param_grid={'class_weight': [{0: 1, 1: v}
                                  for v in np.linspace(1, 20, 30)]},
     scoring={'precision': make_scorer(precision_score), 'recall': make_scorer(
-        recall_score), 'min_both': make_scorer(min_recall_precision)},
+        recall_score), 'min_both': min_recall_precision},
     refit='precision',
     return_train_score=True,
     cv=10,
@@ -61,6 +62,9 @@ grid = GridSearchCV(
 )
 
 print(grid.fit(X, y))
+
+# s = make_scorer(min_recall_precision)
+# help(s)
 
 new_df = pd.DataFrame(grid.cv_results_)
 
