@@ -1,6 +1,8 @@
+# 📦 IMPORTACIONES
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 from sklearn.datasets import make_blobs
 from sklearn.dummy import DummyRegressor
@@ -17,160 +19,194 @@ from sklego.meta import Thresholder, GroupedPredictor, DecayEstimator
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.metrics import precision_score, recall_score, accuracy_score, make_scorer, mean_absolute_error, mean_squared_error
 
-X, y = make_classification(n_samples=2000, n_features=2,
-                           n_redundant=0, random_state=21,
-                           class_sep=1.75, flip_y=0.1)
-plt.scatter(X[:, 0], X[:, 1], c=y, s=5)
+# 🎨 CONFIGURACIÓN DE ESTILO
+sns.set_theme(style="whitegrid", palette="muted", context="talk")
+plt.rcParams["figure.figsize"] = (12, 6)
+
+# =================================================================
+# 🧪 CLASIFICACIÓN CON MÚLTIPLES MODELOS
+# =================================================================
+
+# 📊 GENERAMOS DATOS DE CLASIFICACIÓN
+X, y = make_classification(
+    n_samples=2000,
+    n_features=2,
+    n_redundant=0,
+    random_state=21,
+    class_sep=1.75,
+    flip_y=0.1
+)
+
+# 🔍 VISUALIZAMOS LOS DATOS ORIGINALES
+plt.figure(figsize=(10, 6))
+sns.scatterplot(x=X[:, 0], y=X[:, 1], hue=y, palette="viridis", alpha=0.8)
+plt.title("Distribución de Datos de Clasificación", pad=20)
+plt.xlabel("Característica 1")
+plt.ylabel("Característica 2")
 plt.show()
+
+# 🛠️ FUNCIÓN PARA COMPARAR MODELOS
 
 
 def make_plots():
+    # Generamos superficie de decisión
     X_new = np.concatenate([
-        np.random.uniform(np.min(X[:, 0]), np.max(X[:, 0]), (20000, 1)),
-        np.random.uniform(np.min(X[:, 1]), np.max(X[:, 1]), (20000, 1))
+        np.random.uniform(X[:, 0].min(), X[:, 0].max(), (20000, 1)),
+        np.random.uniform(X[:, 1].min(), X[:, 1].max(), (20000, 1))
     ], axis=1)
-    plt.figure(figsize=(16, 4))
-    plt.subplot(141)
-    plt.scatter(X[:, 0], X[:, 1], c=y, s=5)
-    plt.title("original data")
-    plt.subplot(142)
-    plt.scatter(X_new[:, 0], X_new[:, 1],
-                c=clf1.predict_proba(X_new)[:, 1], s=5)
-    plt.title("ens1")
-    plt.subplot(143)
-    plt.scatter(X_new[:, 0], X_new[:, 1],
-                c=clf2.predict_proba(X_new)[:, 1], s=5)
-    plt.title("ens2")
-    plt.subplot(144)
-    plt.scatter(X_new[:, 0], X_new[:, 1],
-                c=clf3.predict_proba(X_new)[:, 1], s=5)
-    plt.title("ens3")
+
+    # Configuramos el lienzo
+    fig, axs = plt.subplots(1, 4, figsize=(20, 5))
+
+    # Gráfico 1: Datos originales
+    sns.scatterplot(x=X[:, 0], y=X[:, 1], hue=y, ax=axs[0],
+                    palette="viridis", alpha=0.6)
+    axs[0].set_title("Datos Originales", pad=15)
+
+    # Gráficos 2-4: Superficies de decisión
+    titles = ["Regresión Logística", "Vecinos Cercanos", "Ensemble"]
+    models = [clf1, clf2, clf3]
+
+    for i, (title, model) in enumerate(zip(titles, models), 1):
+        probas = model.predict_proba(X_new)[:, 1]
+        sns.scatterplot(x=X_new[:, 0], y=X_new[:, 1], hue=probas,
+                        ax=axs[i], palette="viridis", alpha=0.6, legend=False)
+        axs[i].set_title(title, pad=15)
+
+    plt.tight_layout()
     plt.show()
 
 
-clf1 = LogisticRegression().fit(X, y)
-clf2 = KNeighborsClassifier(n_neighbors=10).fit(X, y)
-clf3 = VotingClassifier(estimators=[('clf1', clf1), ('clf2', clf2)],
-                        voting='soft',
-                        weights=[10.5, 2.5])
-clf3.fit(X, y)
+# 🤖 ENTRENAMOS MODELOS
+clf1 = LogisticRegression().fit(X, y)  # Modelo lineal
+clf2 = KNeighborsClassifier(n_neighbors=10).fit(
+    X, y)  # Modelo basado en distancia
+clf3 = VotingClassifier(  # Ensamble de modelos
+    estimators=[('lr', clf1), ('knn', clf2)],
+    voting='soft',
+    weights=[10.5, 2.5]
+).fit(X, y)
 
 make_plots()
 
-X, y = make_blobs(1000, centers=[(0, 0), (1.5, 1.5)], cluster_std=[1, 0.5])
-plt.scatter(X[:, 0], X[:, 1], c=y, s=5)
+# =================================================================
+# 🔧 AJUSTE DE UMBRALES DE CLASIFICACIÓN
+# =================================================================
+
+# 📊 GENERAMOS DATOS CON CLÚSTERES
+X, y = make_blobs(
+    n_samples=1000,
+    centers=[(0, 0), (1.5, 1.5)],
+    cluster_std=[1, 0.5]
+)
+
+# 🎨 VISUALIZACIÓN DE UMBRALES
+plt.figure(figsize=(15, 5))
+models = [
+    Thresholder(LogisticRegression(), threshold=0.1),
+    Thresholder(LogisticRegression(), threshold=0.9)
+]
+
+for i, model in enumerate([None] + models):
+    plt.subplot(1, 3, i+1)
+    title = "Original" if i == 0 else f"Umbral: {model.threshold}"
+    if i == 0:
+        sns.scatterplot(x=X[:, 0], y=X[:, 1], hue=y, palette="viridis")
+    else:
+        preds = model.fit(X, y).predict(X)
+        sns.scatterplot(x=X[:, 0], y=X[:, 1], hue=preds, palette="viridis")
+    plt.title(title, pad=15)
+    plt.xlabel("Característica 1")
+    plt.ylabel("Característica 2" if i == 0 else "")
+
+plt.tight_layout()
 plt.show()
 
-m1 = Thresholder(LogisticRegression(solver='lbfgs'), threshold=0.1).fit(X, y)
-m2 = Thresholder(LogisticRegression(solver='lbfgs'), threshold=0.9).fit(X, y)
+# =================================================================
+# 📈 MODELADO CON DATOS DE POLLOS
+# =================================================================
 
-plt.figure(figsize=(12, 4))
-plt.subplot(131)
-plt.scatter(X[:, 0], X[:, 1], c=y, s=5)
-plt.title("original data")
-plt.subplot(132)
-plt.scatter(X[:, 0], X[:, 1], c=m1.predict(X), s=5)
-plt.title("thresholder=0.1")
-plt.subplot(133)
-plt.scatter(X[:, 0], X[:, 1], c=m2.predict(X), s=5)
-plt.title("thresholder=0.9")
-plt.show()
-
-pipe = Pipeline([
-    ("model", Thresholder(LogisticRegression(solver='lbfgs'), threshold=0.1))
-])
-
-mod = GridSearchCV(estimator=pipe,
-                   param_grid={"model__threshold": np.linspace(0.1, 0.9, 50)},
-                   scoring={"precision": make_scorer(precision_score),
-                            "recall": make_scorer(recall_score),
-                            "accuracy": make_scorer(accuracy_score)},
-                   refit="precision",
-                   cv=5)
-
-print(mod.fit(X, y))
-
-
+# 🐔 CARGA Y MODELADO DE DATOS
 df = load_chicken(as_frame=True)
 
 
 def plot_model(model):
-    df = load_chicken(as_frame=True)
     model.fit(df[['diet', 'time']], df['weight'])
-    metric_df = df[['diet', 'time', 'weight']].assign(
-        pred=lambda d: model.predict(d[['diet', 'time']]))
-    metric = mean_absolute_error(metric_df['weight'], metric_df['pred'])
-    plt.figure(figsize=(12, 4))
-    # plt.scatter(df['time'], df['weight'])
-    for i in [1, 2, 3, 4]:
-        pltr = metric_df[['time', 'diet', 'pred']
-                         ].drop_duplicates().loc[lambda d: d['diet'] == i]
-        plt.plot(pltr['time'], pltr['pred'], color='.rbgy'[i])
-    plt.title(f"linear model per group, MAE: {np.round(metric, 2)}")
+    metric_df = df.assign(pred=model.predict(df[['diet', 'time']]))
+    mae = mean_absolute_error(metric_df['weight'], metric_df['pred'])
+
+    plt.figure(figsize=(12, 6))
+    for diet in [1, 2, 3, 4]:
+        subset = metric_df[metric_df['diet'] == diet]
+        sns.lineplot(x='time', y='pred', data=subset,
+                     label=f'Dieta {diet}', linewidth=2.5)
+    plt.title(f"Predicciones por Grupo\nMAE: {mae:.2f}", pad=15)
+    plt.xlabel("Tiempo (semanas)")
+    plt.ylabel("Peso (kg)")
+    plt.legend()
     plt.show()
 
 
-feature_pipeline = Pipeline([
-    ("datagrab", FeatureUnion([
-        ("discrete", Pipeline([
-            ("grab", ColumnSelector("diet")),
-            ("encode", OneHotEncoder(categories="auto", sparse_output=False))
-        ])),
-        ("continuous", Pipeline([
-            ("grab", ColumnSelector("time")),
-            ("standardize", StandardScaler())
-        ]))
+# 🔧 PIPELINE DE PROCESAMIENTO
+feature_pipeline = FeatureUnion([
+    ("dietas", Pipeline([
+        ("selector", ColumnSelector("diet")),
+        ("codificador", OneHotEncoder())
+    ])),
+    ("tiempo", Pipeline([
+        ("selector", ColumnSelector("time")),
+        ("escalador", StandardScaler())
     ]))
 ])
 
 pipe = Pipeline([
-    ("transform", feature_pipeline),
-    ("model", LinearRegression())
+    ("procesamiento", feature_pipeline),
+    ("modelo", LinearRegression())
 ])
 
 plot_model(pipe)
 
-mod = GroupedPredictor(LinearRegression(), groups=['diet'])
-plot_model(mod)
+# =================================================================
+# ⏳ SERIES TEMPORALES CON DECAIMIENTO
+# =================================================================
 
+# 📈 GENERAMOS Y VISUALIZAMOS SERIE TEMPORAL
 yt = make_simpleseries(seed=1)
 dates = pd.date_range("2000-01-01", periods=len(yt))
-df = (pd.DataFrame({"yt": yt,
-                    "date": dates})
-      .assign(m=lambda d: d.date.dt.month)
-      .reset_index())
+df = pd.DataFrame({"valor": yt, "fecha": dates}).assign(
+    mes=lambda d: d.fecha.dt.month,
+    indice=lambda d: d.index
+)
 
-plt.figure(figsize=(12, 3))
-plt.plot(dates, make_simpleseries(seed=1))
+plt.figure(figsize=(12, 4))
+sns.lineplot(x="fecha", y="valor", data=df, linewidth=2)
+plt.title("Serie Temporal Simulada", pad=15)
+plt.xlabel("Fecha")
+plt.ylabel("Valor")
 plt.show()
 
-mod1 = (GroupedPredictor(DummyRegressor(), groups=["m"])
-        .fit(df[['m']], df['yt']))
-
-plt.figure(figsize=(12, 3))
-plt.plot(df['yt'], alpha=0.5)
-plt.plot(mod1.predict(df[['m']]), label="grouped")
-plt.legend()
-plt.show()
-
-mod1 = (GroupedPredictor(DummyRegressor(),
-        groups=["m"]).fit(df[['m']], df['yt']))
-
-mod2 = (GroupedPredictor(
+# 🤖 MODELOS DE PREDICCIÓN
+mod1 = GroupedPredictor(DummyRegressor(), groups=["mes"])
+mod2 = GroupedPredictor(
     DecayEstimator(
-        model=DummyRegressor(),
-        # La función de decaimiento ahora acepta X e y como argumentos
-        decay_func=lambda X, y: 0.9**X['index'],
-        decay_kwargs={}
+        DummyRegressor(),
+        decay_func=lambda X, y: 0.9**X['indice']
     ),
-    groups=["m"]
-))
+    groups=["mes"]
+)
 
-mod2.fit(df[['index', 'm']], df['yt'])
+mod1.fit(df[['mes']], df['valor'])
+mod2.fit(df[['indice', 'mes']], df['valor'])
 
-plt.figure(figsize=(12, 3))
-plt.plot(df['yt'], alpha=0.5)
-plt.plot(mod1.predict(df[['m']]), label="grouped")
-plt.plot(mod2.predict(df[['index', 'm']]), label="decayed")
+# 🎨 COMPARACIÓN DE PREDICCIONES
+plt.figure(figsize=(12, 4))
+sns.lineplot(x="fecha", y="valor", data=df, label="Real", alpha=0.6)
+sns.lineplot(x=df['fecha'], y=mod1.predict(
+    df[['mes']]), label="Grupos", linewidth=2)
+sns.lineplot(x=df['fecha'], y=mod2.predict(df[['indice', 'mes']]),
+             label="Decaimiento", linewidth=2)
+plt.title("Comparación de Estrategias de Modelado", pad=15)
+plt.xlabel("Fecha")
+plt.ylabel("Valor")
 plt.legend()
 plt.show()
