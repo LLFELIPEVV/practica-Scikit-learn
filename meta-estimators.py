@@ -2,16 +2,19 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from sklearn.pipeline import Pipeline
 from sklearn.datasets import make_blobs
+from sklego.datasets import load_chicken
 from sklearn.ensemble import VotingClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklego.preprocessing import ColumnSelector
 from sklearn.datasets import make_classification
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import precision_score, recall_score, accuracy_score, make_scorer
-from sklego.meta import Thresholder
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklego.meta import Thresholder, GroupedPredictor
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.metrics import precision_score, recall_score, accuracy_score, make_scorer, mean_absolute_error, mean_squared_error
 
 X, y = make_classification(n_samples=2000, n_features=2,
                            n_redundant=0, random_state=21,
@@ -85,3 +88,46 @@ mod = GridSearchCV(estimator=pipe,
                    cv=5)
 
 print(mod.fit(X, y))
+
+
+df = load_chicken(as_frame=True)
+
+
+def plot_model(model):
+    df = load_chicken(as_frame=True)
+    model.fit(df[['diet', 'time']], df['weight'])
+    metric_df = df[['diet', 'time', 'weight']].assign(
+        pred=lambda d: model.predict(d[['diet', 'time']]))
+    metric = mean_absolute_error(metric_df['weight'], metric_df['pred'])
+    plt.figure(figsize=(12, 4))
+    # plt.scatter(df['time'], df['weight'])
+    for i in [1, 2, 3, 4]:
+        pltr = metric_df[['time', 'diet', 'pred']
+                         ].drop_duplicates().loc[lambda d: d['diet'] == i]
+        plt.plot(pltr['time'], pltr['pred'], color='.rbgy'[i])
+    plt.title(f"linear model per group, MAE: {np.round(metric, 2)}")
+    plt.show()
+
+
+feature_pipeline = Pipeline([
+    ("datagrab", FeatureUnion([
+        ("discrete", Pipeline([
+            ("grab", ColumnSelector("diet")),
+            ("encode", OneHotEncoder(categories="auto", sparse_output=False))
+        ])),
+        ("continuous", Pipeline([
+            ("grab", ColumnSelector("time")),
+            ("standardize", StandardScaler())
+        ]))
+    ]))
+])
+
+pipe = Pipeline([
+    ("transform", feature_pipeline),
+    ("model", LinearRegression())
+])
+
+plot_model(pipe)
+
+mod = GroupedPredictor(LinearRegression(), groups=['diet'])
+plot_model(mod)
