@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from sklearn.datasets import make_blobs
-from sklego.datasets import load_chicken
+from sklearn.dummy import DummyRegressor
 from sklearn.ensemble import VotingClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklego.preprocessing import ColumnSelector
@@ -11,8 +11,9 @@ from sklearn.datasets import make_classification
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline, FeatureUnion
-from sklego.meta import Thresholder, GroupedPredictor
+from sklego.datasets import load_chicken, make_simpleseries
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklego.meta import Thresholder, GroupedPredictor, DecayEstimator
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.metrics import precision_score, recall_score, accuracy_score, make_scorer, mean_absolute_error, mean_squared_error
 
@@ -131,3 +132,45 @@ plot_model(pipe)
 
 mod = GroupedPredictor(LinearRegression(), groups=['diet'])
 plot_model(mod)
+
+yt = make_simpleseries(seed=1)
+dates = pd.date_range("2000-01-01", periods=len(yt))
+df = (pd.DataFrame({"yt": yt,
+                    "date": dates})
+      .assign(m=lambda d: d.date.dt.month)
+      .reset_index())
+
+plt.figure(figsize=(12, 3))
+plt.plot(dates, make_simpleseries(seed=1))
+plt.show()
+
+mod1 = (GroupedPredictor(DummyRegressor(), groups=["m"])
+        .fit(df[['m']], df['yt']))
+
+plt.figure(figsize=(12, 3))
+plt.plot(df['yt'], alpha=0.5)
+plt.plot(mod1.predict(df[['m']]), label="grouped")
+plt.legend()
+plt.show()
+
+mod1 = (GroupedPredictor(DummyRegressor(),
+        groups=["m"]).fit(df[['m']], df['yt']))
+
+mod2 = (GroupedPredictor(
+    DecayEstimator(
+        model=DummyRegressor(),
+        # La función de decaimiento ahora acepta X e y como argumentos
+        decay_func=lambda X, y: 0.9**X['index'],
+        decay_kwargs={}
+    ),
+    groups=["m"]
+))
+
+mod2.fit(df[['index', 'm']], df['yt'])
+
+plt.figure(figsize=(12, 3))
+plt.plot(df['yt'], alpha=0.5)
+plt.plot(mod1.predict(df[['m']]), label="grouped")
+plt.plot(mod2.predict(df[['index', 'm']]), label="decayed")
+plt.legend()
+plt.show()
