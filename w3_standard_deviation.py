@@ -19,3 +19,23 @@ print(result)
 speed = [32, 111, 138, 28, 59, 77, 97]
 result = np.std(speed)
 print(result)
+
+# Varianza
+# La varianza es otra medida de dispersión. Se calcula como la media de los valores al cuadrado.
+# La varianza es otro numero que indica que tan dispersos estan los valores.
+# La raiz cuadrada de la varianza de como resultado la desviacion estandar.
+# El cuadrado de la desviacion estandar es la varianza.
+# Paso para calcular la varianza:
+# Encontrar la media
+result = sum(speed) / len(speed)
+# Encontrar la diferencia con la media
+diferencias = [(x - result) for x in speed]
+# Encontrar el valor cuadrado
+cuadrados = [x**2 for x in diferencias]
+result = sum(cuadrados) / len(cuadrados)
+print(result)
+
+# Numpy tiene un metodo para calcular la varianza
+speed = [32, 111, 138, 28, 59, 77, 97]
+result = np.var(speed)
+print(result)
