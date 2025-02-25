@@ -39,3 +39,7 @@ print(result)
 speed = [32, 111, 138, 28, 59, 77, 97]
 result = np.var(speed)
 print(result)
+
+# Simbolos
+# La desviacion estandar a menudo se representa con el simbolo Sigma σ.
+# La varianza a menudo se representa con el simbolo Sigma al cuadrado σ 2.
