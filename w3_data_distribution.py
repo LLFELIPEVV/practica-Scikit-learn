@@ -1,28 +1,54 @@
+"""
+Guía para generar y visualizar conjuntos de datos grandes usando NumPy y Seaborn
+================================================================================
+
+En Machine Learning, a menudo se requiere probar algoritmos con grandes conjuntos de datos.
+Para ello, podemos generar datos aleatorios usando NumPy y visualizar su distribución mediante
+histogramas. En este ejemplo, se muestran dos casos:
+
+1. Un conjunto pequeño de 250 valores aleatorios entre 0 y 5, visualizado con 5 barras.
+2. Un conjunto grande de 1,000,000 de valores aleatorios entre 0 y 90, visualizado con 100 barras.
+
+Se utilizan Seaborn y Matplotlib para crear gráficos con una estética mejorada.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
-# Los conjuntos de datos suelen ser mucho mas grandes que con los que hemos trabajado, pero puede ser dificil recolectar datos del mundo real en una etapa temprana del proyecto.
-# Para crear grandes conjuntos de datos para pruebas, se utiliza el modulo Numpy, que viene con varios metodos para crear conjuntos de datos aleatorios.
+import seaborn as sns
 
-# Ejemplo: Crear una matriz que tenga 250 numeros flotantes aleatorios entre 0 y 5.
-result = np.random.uniform(0, 5, 250)
-print(result)
+# Configurar el estilo de Seaborn para mejorar la estética de los gráficos.
+sns.set_theme(style="whitegrid")
 
-# Histograma
-# Una forma de visualizar la distribucion de los datos es un histograma.
-plt.hist(result, 5)
+# -----------------------------------------------------------------------------
+# Ejemplo 1: Conjunto pequeño de datos
+# -----------------------------------------------------------------------------
+# Crear un arreglo de 250 números flotantes aleatorios entre 0 y 5.
+data_small = np.random.uniform(0, 5, 250)
+print("Conjunto pequeño (250 valores):")
+print(data_small)
+
+# Visualizar la distribución de 'data_small' con un histograma de 5 barras.
+plt.figure(figsize=(8, 4))
+sns.histplot(data_small, bins=5, kde=False, color="skyblue")
+plt.title("Histograma: 250 valores aleatorios entre 0 y 5")
+plt.xlabel("Rango de valores")
+plt.ylabel("Frecuencia")
 plt.show()
 
-# Se usaron los datos aleatorios del ejemplo anterior para dibujar 5 barras en el histograma.
-# La primera barra representa cuantos valores de la matriz estan entre 0 y 1.
-# La segunda barra representa cuantos valores de la matriz estan entre 1 y 2.
-# Y asi sucesivamente.
-# El eje x representa el rango de valores.
-# El eje y representa la frecuencia de valores en ese rango.
+# -----------------------------------------------------------------------------
+# Ejemplo 2: Conjunto grande de datos
+# -----------------------------------------------------------------------------
+# Crear un arreglo de 1,000,000 de números flotantes aleatorios entre 0 y 90.
+data_large = np.random.uniform(0, 90, 1000000)
+print("\nTamaño del conjunto grande:", len(data_large))
 
-# Distribuciones de Big Data
-# Una matriz que contiene 250 valores no se considera muy grande, pero ahora sabe como crear un conjunto de datos mucho mas grande.
-# Ejemplo: Crear una matriz con 1000000 valores aleatorios y mostrarlos en un histograma con 100 barras.
-result = np.random.uniform(0, 90, 1000000)
-print(len(result))
-plt.hist(result, 100)
+# Visualizar la distribución de 'data_large' con un histograma de 100 barras.
+plt.figure(figsize=(10, 6))
+sns.histplot(data_large, bins=100, kde=False, color="salmon")
+plt.title("Histograma: 1,000,000 valores aleatorios entre 0 y 90")
+plt.xlabel("Rango de valores")
+plt.ylabel("Frecuencia")
 plt.show()
+
+if __name__ == "__main__":
+    print("Visualización completada.")
