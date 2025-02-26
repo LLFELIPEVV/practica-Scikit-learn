@@ -18,3 +18,11 @@ plt.show()
 # Y asi sucesivamente.
 # El eje x representa el rango de valores.
 # El eje y representa la frecuencia de valores en ese rango.
+
+# Distribuciones de Big Data
+# Una matriz que contiene 250 valores no se considera muy grande, pero ahora sabe como crear un conjunto de datos mucho mas grande.
+# Ejemplo: Crear una matriz con 1000000 valores aleatorios y mostrarlos en un histograma con 100 barras.
+result = np.random.uniform(0, 90, 1000000)
+print(len(result))
+plt.hist(result, 100)
+plt.show()
