@@ -32,3 +32,17 @@ plt.show()
 # Se genera una nueva matriz con el resultado de la funcion.
 # Se dibuja el diagrama de dispersion.
 # Se dibuja la linea de regresion lineal.
+
+# R de relacion
+# Es importante saber como es la relacion entre los valores del eje x y los valores del eje y, ya que si no existe una relacion no se puede usar la regresion lineal para realizar predicciones.
+# Esta relacion "el coeficiente de relacion" se llama r.
+# El valor r se encuentra entre -1 y 1, donde 0 significa que no existe relacion, y 1 (y -1) significa una relacion del 100%.
+# Para obtener este valor, se utiliza el metodo "linregress" del modulo "scipy" (que se importo como "stats").
+
+# Ejemplo: Se crean las matrices que representan los valores en x e y.
+x = [5, 7, 8, 7, 2, 17, 2, 9, 4, 11, 12, 9, 6]
+y = [99, 86, 87, 88, 111, 86, 103, 87, 94, 78, 77, 85, 86]
+
+slope, intercept, r, p, std_err = stats.linregress(x, y)
+
+print(r)
