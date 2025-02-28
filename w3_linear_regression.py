@@ -46,3 +46,10 @@ y = [99, 86, 87, 88, 111, 86, 103, 87, 94, 78, 77, 85, 86]
 slope, intercept, r, p, std_err = stats.linregress(x, y)
 
 print(r)
+
+# Predecir valores futuros
+# Ahora podemos utilizar la informacion que hemos reunido para producir valores futuros.
+# Ejemplo: Intentemos predecir la velocidad de un coche de 10 años.
+
+speed = myfunc(10)
+print(speed)
