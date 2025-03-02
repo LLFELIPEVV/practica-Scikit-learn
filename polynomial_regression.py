@@ -34,3 +34,8 @@ y = [100, 90, 80, 60, 60, 55, 60, 65, 70, 70, 75, 76, 78, 79, 90, 99, 99, 100]
 mymodel = np.poly1d(np.polyfit(x, y, 3))
 
 print(r2_score(y, mymodel(x)))
+
+# Predecir valores futuros
+# Ejemplo: Predecir la velocidad de un automovil que pasa por el peaje alrededor de las 17:00.
+speed = mymodel(17)
+print(speed)
