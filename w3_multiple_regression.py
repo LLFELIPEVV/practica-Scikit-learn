@@ -20,3 +20,16 @@ regr.fit(X, y)
 # Ahora tenemos un objeto que puede predecir los valores de CO2 en funcion del peso y el volumen de un auto.
 predictedCO2 = regr.predict([[2300, 1300]])
 print(predictedCO2)
+
+# Coeficiente
+# El coeficiente es un factor que describe la relacion con una variable desconocida.
+# Ejemplo: Imprimir los valores de los coeficientes del objeto de regresion.
+print(regr.coef_)
+
+# La matriz de resultados representa los valores de los coeficientes de peso y volumen.
+# Peso: 0,00755095
+# Volumen: 0,00780526
+# Estos valores nos indican que si el peso aumenta en 1 kg, la emisión de CO2 aumenta en 0,00755095 g.
+# Y si el tamaño del motor (volumen) aumenta en 1 cm3 , la emisión de CO2 aumenta en 0,00780526 g.
+predictedCO2 = regr.predict([[3300, 1300]])
+print(predictedCO2)
