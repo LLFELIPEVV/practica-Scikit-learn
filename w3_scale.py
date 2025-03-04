@@ -22,3 +22,13 @@ df = pd.read_csv("data.csv")
 X = df[['Weight', 'Volume']]
 scaledX = scale.fit_transform(X)
 print(scaledX)
+
+# Predecir los valores de CO2
+# Cuando se escala el conjunto de datos, tendra que usar la escala para predecir valores.
+y = df['CO2']
+regr = linear_model.LinearRegression()
+regr.fit(scaledX, y)
+
+scaled = scale.transform([[2300, 1.3]])
+predictedCO2 = regr.predict([scaled[0]])
+print(predictedCO2)
