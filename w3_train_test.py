@@ -41,3 +41,8 @@ plt.scatter(train_x, train_y)
 plt.show()
 # Resultados
 # Parece ser el conjunto de datos original por lo que es una seleccion justa.
+
+# Mostrar el conjunto de prueba
+# Mostrar el mismo diagrama de dispersion con el conjunto de prueba.
+plt.scatter(test_x, test_y)
+plt.show()
