@@ -46,3 +46,14 @@ plt.show()
 # Mostrar el mismo diagrama de dispersion con el conjunto de prueba.
 plt.scatter(test_x, test_y)
 plt.show()
+
+# Ajustar el conjunto de datos
+# Segun la apariencia de los datos en el diagrama de dispersion la mejor opcion seria usar la regresion polinomica.
+mymodel = np.poly1d(np.polyfit(train_x, train_y, 4))
+myline = np.linspace(0, 6, 100)
+
+plt.scatter(train_x, train_y)
+plt.plot(myline, mymodel(myline))
+plt.show()
+
+# El grafico demuestra que la regresion polinomica es la correcta, aunque sufre de sobreajuste.
