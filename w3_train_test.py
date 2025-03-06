@@ -65,3 +65,9 @@ plt.show()
 r2 = r2_score(train_y, mymodel(train_x))
 print(r2)
 # El resultado de 0,7999 indica que existe una relacion aceptable.
+
+# Traer el equipo de prueba
+# Ya que hemos creado un modelo que esta bien al menos en lo que respecta a los datos de entrenamiento, ahora podemos probarlo con los datos de prueba, para ver si da el mismo resultado.
+r2 = r2_score(test_y, mymodel(test_x))
+print(r2)
+# El resultado de 0,809 muestra que el modelo tambien se ajusta al conjunto de pruebas y nos asegura que podremos usarlo para predicciones de valores futuros.
