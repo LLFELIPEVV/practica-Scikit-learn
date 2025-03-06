@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from sklearn.metrics import r2_score
+
 # Aprendizaje automatico: entrenamiento y prueba
 # Evalua tu modelo
 # Para medir si el modelo es suficientemente bueno haciendo predicciones, podemos usar un metodo llamado entrenar/probar.
@@ -57,3 +59,9 @@ plt.plot(myline, mymodel(myline))
 plt.show()
 
 # El grafico demuestra que la regresion polinomica es la correcta, aunque sufre de sobreajuste.
+
+# R2
+# Usaremos R-cuadrado para calcular la relacion entre los minutos que un cliente permanece en la tienda y el dinero que gasta.
+r2 = r2_score(train_y, mymodel(train_x))
+print(r2)
+# El resultado de 0,7999 indica que existe una relacion aceptable.
