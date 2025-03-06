@@ -71,3 +71,10 @@ print(r2)
 r2 = r2_score(test_y, mymodel(test_x))
 print(r2)
 # El resultado de 0,809 muestra que el modelo tambien se ajusta al conjunto de pruebas y nos asegura que podremos usarlo para predicciones de valores futuros.
+
+# Predecir valores
+# Ahora que hemos comprobado que el modelo funciona podemos comenzar a predecir valores.
+# Ejemplo: Cuanto dinero gastara un cliente en la tienda si el cliente permanece en la tienda aproximadamente 5 minutos?
+print(mymodel(5))
+# El modelo predijo que el cliente gastaria 22,88 dolares.
+
