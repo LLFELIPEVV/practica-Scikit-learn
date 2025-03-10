@@ -31,3 +31,13 @@ plt.show()
 # Falso negativo
 # Verdadero positivo
 # Verdadero significa que los valores se predijeron con precision, Falso significa que hubo un error o una prediccion incorrecta.
+
+# Metricas creadas
+# La matriz proporciona metricas utiles, las diferentes metricas incluyen: exactitud, precision, sensibilidad, especificidad y la puntuacion F.
+
+# Exactitud
+# La exactitud mide la frecuencia con la que el modelo es correcto.
+# La formula para calcularla es (Verdadero positivo + Verdadero negativo) / Predicciones totales
+# ¿Que valor es mejor? Cercano a 0 o a 1?
+accuracy = metrics.accuracy_score(actual, predicted)
+print(accuracy)
