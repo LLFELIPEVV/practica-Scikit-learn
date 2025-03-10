@@ -41,3 +41,10 @@ plt.show()
 # ¿Que valor es mejor? Cercano a 0 o a 1?
 accuracy = metrics.accuracy_score(actual, predicted)
 print(accuracy)
+
+# Presicion
+# De los positivos previos, que porcentaje es realmente positivo?
+# La formula para calcularla es Verdadero positivo / (Verdadero positivo + Falso positivo)
+# La presicion no evalua los casos negativos predichos correctamente.
+precision = metrics.precision_score(actual, predicted)
+print(precision)
