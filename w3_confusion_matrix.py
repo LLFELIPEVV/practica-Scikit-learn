@@ -48,3 +48,11 @@ print(accuracy)
 # La presicion no evalua los casos negativos predichos correctamente.
 precision = metrics.precision_score(actual, predicted)
 print(precision)
+
+# Sensibilidad (Recuerdo)
+# De todos los casos positivos que porcentaje se prevee positivo?
+# La sensibilidad mide que tan bueno es el modelo para predecir resultados positivos.
+# Esto significa que analiza los Verdaderos positivos y los Falsos negativos (que son positivos que se han predicho incorrectamente como negativos).
+# La formula para calcularla es Verdadero positivo / (Verdadero positivo + Falso negativo)
+sensitivity_recall = metrics.recall_score(actual, predicted)
+print(sensitivity_recall)
