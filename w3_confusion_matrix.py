@@ -23,3 +23,11 @@ cm_display = metrics.ConfusionMatrixDisplay(
 
 cm_display.plot()
 plt.show()
+
+# Resultados explicados
+# La matriz de precision tiene 4 cuadrantes diferentes:
+# Verdadero negativo
+# Falso positivo
+# Falso negativo
+# Verdadero positivo
+# Verdadero significa que los valores se predijeron con precision, Falso significa que hubo un error o una prediccion incorrecta.
