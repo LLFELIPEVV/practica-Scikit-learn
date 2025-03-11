@@ -56,3 +56,10 @@ print(precision)
 # La formula para calcularla es Verdadero positivo / (Verdadero positivo + Falso negativo)
 sensitivity_recall = metrics.recall_score(actual, predicted)
 print(sensitivity_recall)
+
+# Especificidad
+# ¿Que tan bueno es el modelo para predecir resultados negativos?
+# La especificidad es similar a la sensibilidad, pero lo analiza desde la perspectiva de los resultados negativos.
+# La formula para calcularla es Verdadero negativo / (Verdadero negativo + Falso positivo)
+specificity = metrics.recall_score(actual, predicted, pos_label=0)
+print(specificity)
