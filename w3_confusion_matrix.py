@@ -63,3 +63,14 @@ print(sensitivity_recall)
 # La formula para calcularla es Verdadero negativo / (Verdadero negativo + Falso positivo)
 specificity = metrics.recall_score(actual, predicted, pos_label=0)
 print(specificity)
+
+# Puntuacion F
+# La puntuacion F es la media armonica entre la presicion y la sensibilidad.
+# Considera tanto falsos positivos como falsos negativos y es bueno para conjuntos de datos desequilibrados.
+# La formula para calcularla es 2* ((Presicion * Sensibilidad) / (Presicion + Sensibilidad))
+F1_score = metrics.f1_score(actual, predicted)
+print(F1_score)
+
+# metrics
+print({"Accuracy": accuracy, "Precision": precision, "Sensitivity_recall":
+      sensitivity_recall, "Specificity": specificity, "F1_score": F1_score})
