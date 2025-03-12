@@ -32,3 +32,9 @@ labels = hierarchical_cluster.fit_predict(data)
 
 plt.scatter(x, y, c=labels)
 plt.show()
+
+# Ejemplo explicado
+# Se crean dos matrices que se asemejen a dos variables en un conjunto de datos. En este ejemplo se usaron 2 variables pero este metodo sirve para cualquier cantidad de variables.
+# Luego se convierten los datos en un conjunto de puntos.
+# Luego se calcula la relacion entre todos los diferentes puntos.
+# Por ultimo se grafica en un dendrograma. Este grafico muestra la jerarquia de los grupos desde la base.
