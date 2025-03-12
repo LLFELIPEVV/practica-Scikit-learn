@@ -1,40 +1,80 @@
+"""
+Guía de Agrupamiento Jerárquico con Dendrograma y Visualización de Clusters
+===========================================================================
+La agrupación jerárquica es un método de aprendizaje no supervisado que agrupa puntos
+de datos basándose en sus similitudes. En el agrupamiento aglomerativo, cada punto
+comienza como su propio grupo y, de manera iterativa, se fusionan los grupos más cercanos,
+hasta formar un único grupo global.
+
+En este ejemplo:
+  - Se crean dos listas 'x' e 'y' que representan dos variables.
+  - Se combinan en un conjunto de puntos.
+  - Se calcula la vinculación (linkage) usando la distancia euclidiana y el método de Ward,
+    que minimiza la varianza dentro de cada grupo.
+  - Se visualiza la jerarquía con un dendrograma.
+  - Se utiliza AgglomerativeClustering de scikit-learn para segmentar los datos en 2 clusters,
+    y se visualizan los clusters en un diagrama de dispersión.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
-
+import seaborn as sns
 from scipy.cluster.hierarchy import dendrogram, linkage
 from sklearn.cluster import AgglomerativeClustering
 
-# Agrupamiento jerarquico
-# La agrupacion jerarquica es un metodo de apredizaje no supervisado para agrupar puntos de datos.
-# El algoritmo crea grupos midiendo las diferencias entre los datos.
-# El aprendizaje no supervisado significa que no es necesario entrenar un modelo y no necesitamos una variable 'objetivo'.
-# Este metodo se puede utilizar con cualquier dato para visualizar e interpretar la relacion entre puntos de datos individuales.
+# Configuración de Seaborn para gráficos con estilo
+sns.set_theme(style="whitegrid", font_scale=1.2)
 
-# ¿Como funciona?
-# Utilizaremos el agrupamiento aglomerativo, un tipo de agrupamiento que toma inicialmente cada punto como su propio grupo, luego une los mas cercanos para ir creando grupos mas grandes y asi sucesivamente hasta tener un solo grupo
-# La agrupacion jerarquica requiere decidamos tanto el metodo de distancia como el de vinculacion.
-# En este ejemplo se usara la distancia euclidiana y el metodo de vinculacion de ward, que intenta minimizar la varianza entre grupos.
-# Ejemplo: calcular el vínculo de barrio utilizando la distancia euclidiana y lo visualizamos utilizando un dendrograma
+# -------------------------------------------------------------------------
+# Crear Datos Simulados
+# -------------------------------------------------------------------------
+# Dos listas que representan dos variables (por ejemplo, características de puntos)
 x = [4, 5, 10, 4, 3, 11, 14, 6, 10, 12]
 y = [21, 19, 24, 17, 16, 25, 24, 22, 21, 21]
 
+# Combinar las listas en un conjunto de datos (lista de tuplas)
 data = list(zip(x, y))
 
+# -------------------------------------------------------------------------
+# Calcular la Vinculación Jerárquica
+# -------------------------------------------------------------------------
+# Usamos la función linkage de SciPy con el método de Ward y la distancia euclidiana.
 linked_data = linkage(data, method='ward', metric='euclidean')
-dendrogram(linked_data)
 
+# Visualizar la jerarquía de agrupamiento mediante un dendrograma.
+plt.figure(figsize=(10, 6))
+dendrogram(linked_data)
+plt.title("Dendrograma del Agrupamiento Jerárquico")
+plt.xlabel("Índice del Punto de Datos")
+plt.ylabel("Distancia Euclidiana")
 plt.show()
 
-# Ahora con scikit-learn
-hierarchical_cluster = AgglomerativeClustering(
-    n_clusters=2, metric='euclidean', linkage='ward')
+# -------------------------------------------------------------------------
+# Agrupamiento Jerárquico con scikit-learn
+# -------------------------------------------------------------------------
+# Aplicamos AgglomerativeClustering para formar 2 clusters en base a los datos.
+hierarchical_cluster = AgglomerativeClustering(n_clusters=2, metric='euclidean', linkage='ward')
 labels = hierarchical_cluster.fit_predict(data)
 
-plt.scatter(x, y, c=labels)
+# Visualizar los clusters con un diagrama de dispersión.
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x=x, y=y, hue=labels, palette="viridis", s=100, edgecolor="black")
+plt.title("Agrupamiento Jerárquico: Clusters")
+plt.xlabel("Variable X")
+plt.ylabel("Variable Y")
 plt.show()
 
-# Ejemplo explicado
-# Se crean dos matrices que se asemejen a dos variables en un conjunto de datos. En este ejemplo se usaron 2 variables pero este metodo sirve para cualquier cantidad de variables.
-# Luego se convierten los datos en un conjunto de puntos.
-# Luego se calcula la relacion entre todos los diferentes puntos.
-# Por ultimo se grafica en un dendrograma. Este grafico muestra la jerarquia de los grupos desde la base.
+# -------------------------------------------------------------------------
+# Explicación:
+# -------------------------------------------------------------------------
+# 1. Se crean dos listas 'x' e 'y' que representan dos variables de un conjunto de datos.
+# 2. Se combinan en una lista de puntos utilizando list(zip(x, y)).
+# 3. Con la función linkage() se calcula la relación jerárquica entre los puntos
+#    utilizando el método de Ward, que minimiza la varianza dentro de cada grupo.
+# 4. El dendrograma resultante visualiza la jerarquía de agrupación, mostrando cómo se
+#    unen los puntos desde grupos individuales hasta la formación de un único grupo.
+# 5. Luego, usando AgglomerativeClustering, se segmentan los datos en 2 clusters, y se
+#    visualizan los resultados en un diagrama de dispersión, donde cada color representa un cluster.
+  
+if __name__ == "__main__":
+    print("¡Finalizada la guía de agrupamiento jerárquico!")
