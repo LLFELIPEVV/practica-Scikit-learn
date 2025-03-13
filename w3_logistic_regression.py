@@ -19,3 +19,11 @@ logr.fit(X, y)
 # Predecir si el tumor es canceroso cuando su tamaño es 3.46cm:
 predicted = logr.predict(numpy.array([3.46]).reshape(-1, 1))
 print(predicted)
+
+# Coeficiente
+# En la regresion logistica, el coeficiente representa el cambio esperado en las probabilidades logaritmicas de tener el resultado por unidad de cambio en X.
+# Ejemplo:
+log_odds = logr.coef_
+odds = numpy.exp(log_odds)
+print(odds)
+# Esto indica que a medida que el tumor aumenta 1cm, las probabilidades de que sea un tumor canceroso aumentan en 4x.
