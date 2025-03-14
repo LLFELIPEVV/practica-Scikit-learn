@@ -1,50 +1,99 @@
-import numpy
+"""
+Guía de Regresión Logística para Clasificación
+==============================================
 
+La regresión logística es un método de Machine Learning utilizado para resolver problemas de clasificación,
+donde el objetivo es predecir resultados categóricos (por ejemplo, benigno o maligno). A diferencia de la 
+regresión lineal, que predice valores continuos, la regresión logística estima la probabilidad de que 
+un evento ocurra.
+
+En este ejemplo, usaremos el tamaño de un tumor (en centímetros) para predecir si es canceroso:
+  - 0 representa un tumor benigno.
+  - 1 representa un tumor canceroso.
+
+Nota: Es importante que los datos de entrada (X) se transformen en una matriz de una columna, para que la 
+función LogisticRegression() funcione correctamente.
+"""
+
+import numpy as np
 from sklearn import linear_model
 
-# Regresion logistica
-# Busca resolver problemas de clasificacion. Esto lo hace prediciendo resultados categoricos, a diferencia de la regresion lineal, que predice un resultado continuo.
-# En el caso mas simple, existen dos resultados, lo que se denomina binomial. Por ejemplo predecir si un tumor es benigno o maligno. En otros casos se requieren mas de dos resultados para clasificar; en este caso, se denomina multinomial. Un ejemplo de regresion logistica multinomial seria predecir la clase de una flor entre tres especies diferentes.
-# Usemos el ejemplo de los tumores:
-# X representa el tamaño del tumor en centimetros
-# X debe tranformarse en una columna apartir de una fila para que la funcion LogisticRegression() funcione.
-X = numpy.array([3.78, 2.44, 2.09, 0.14, 1.72, 1.65, 4.92,
-                4.37, 4.96, 4.52, 3.69, 5.88]).reshape(-1, 1)
-# y representa si el tumor es canceroso o no.
-y = numpy.array([0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1])
+# Datos de ejemplo:
+# X representa el tamaño del tumor en cm.
+# Se convierte en una matriz de una columna usando reshape(-1, 1).
+X = np.array([3.78, 2.44, 2.09, 0.14, 1.72, 1.65, 4.92,
+              4.37, 4.96, 4.52, 3.69, 5.88]).reshape(-1, 1)
 
+# y representa la clasificación:
+# 0 = tumor benigno y 1 = tumor canceroso.
+y = np.array([0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1])
+
+# Crear y entrenar el modelo de regresión logística.
 logr = linear_model.LogisticRegression()
 logr.fit(X, y)
 
-# Predecir si el tumor es canceroso cuando su tamaño es 3.46cm:
-predicted = logr.predict(numpy.array([3.46]).reshape(-1, 1))
-print(predicted)
+# -----------------------------------------------------------------------------
+# Predicción:
+# ¿Es canceroso un tumor de 3.46 cm?
+# -----------------------------------------------------------------------------
+predicted = logr.predict(np.array([3.46]).reshape(-1, 1))
+print("Predicción para tumor de 3.46 cm (0 = benigno, 1 = canceroso):",
+      predicted[0])
 
-# Coeficiente
-# En la regresion logistica, el coeficiente representa el cambio esperado en las probabilidades logaritmicas de tener el resultado por unidad de cambio en X.
-# Ejemplo:
+# -----------------------------------------------------------------------------
+# Interpretación del Coeficiente:
+# -----------------------------------------------------------------------------
+# El coeficiente en regresión logística indica el cambio esperado en el logaritmo de las probabilidades
+# (log-odds) de que el resultado sea 1 por cada unidad de cambio en X.
+# Para interpretar este valor, se puede calcular la "razón de probabilidades" (odds) aplicando la
+# función exponencial al coeficiente.
 log_odds = logr.coef_
-odds = numpy.exp(log_odds)
+odds = np.exp(log_odds)
+print("Razón de probabilidades (odds) del coeficiente:")
 print(odds)
-# Esto indica que a medida que el tumor aumenta 1cm, las probabilidades de que sea un tumor canceroso aumentan en 4x.
+# Por ejemplo, si odds = 4, significa que por cada aumento de 1 cm en el tamaño del tumor,
+# las probabilidades de que sea canceroso se multiplican por 4.
 
-# Probabilidad
-# Los valores del coeficiente y la interseccion se pueden utilizar para encontrar la probabilidad de que cada tumor sea canceroso.
-# Se crea una funcion que retorna un valor que representa la probabilidad de que la observacion dada sea un tumor.
-def logit2prob(logr, x):
-    log_odds = logr.coef_ * x + logr.intercept_
-    odds = numpy.exp(log_odds)
+# -----------------------------------------------------------------------------
+# Función para convertir log-odds en Probabilidad
+# -----------------------------------------------------------------------------
+
+
+def logit2prob(logr_model, x_values):
+    """
+    Calcula la probabilidad de que la observación sea positiva (tumor canceroso)
+    usando el modelo de regresión logística.
+
+    Parámetros:
+      logr_model: El modelo de regresión logística entrenado.
+      x_values: Valores de entrada (tamaño del tumor) para los cuales se desea calcular la probabilidad.
+
+    Retorna:
+      La probabilidad de que la observación sea positiva.
+    """
+    # Calcular el log-odds usando el coeficiente y la intersección del modelo
+    log_odds = logr_model.coef_ * x_values + logr_model.intercept_
+    # Convertir los log-odds en "odds"
+    odds = np.exp(log_odds)
+    # Calcular la probabilidad: odds / (1 + odds)
     probability = odds / (1 + odds)
     return probability
 
 
-# Para encontrar las probabilidades logarítmicas de cada observación, primero debemos crear una fórmula que se parezca a la de la regresión lineal, extrayendo el coeficiente y la intersección.
-# Para luego convertir las probabilidades logarítmicas en probabilidades debemos potenciar las probabilidades logarítmicas.
-# Ahora que tenemos las probabilidades, podemos convertirlas en probabilidad dividiéndolas por 1 más las probabilidades.
-# Utilicemos ahora la función con lo aprendido para averiguar la probabilidad de que cada tumor sea canceroso.
-print(logit2prob(logr, X))
+# Calcular la probabilidad para cada observación en X.
+probabilities = logit2prob(logr, X)
+print("\nProbabilidades de que cada tumor sea canceroso:")
+print(probabilities)
 
-# Resultados explicados
-# 3.78 0.61 La probabilidad de que un tumor con un tamaño de 3,78 cm sea canceroso es del 61%.
-# 2.44 0.19 La probabilidad de que un tumor con un tamaño de 2,44 cm sea canceroso es del 19%.
-# 2.09 0.13 La probabilidad de que un tumor con un tamaño de 2,09 cm sea canceroso es del 13%.
+"""
+Resultados explicados:
+- Para un tumor de 3.78 cm, la probabilidad de ser canceroso es aproximadamente 61%.
+- Para un tumor de 2.44 cm, la probabilidad es aproximadamente 19%.
+- Para un tumor de 2.09 cm, la probabilidad es aproximadamente 13%.
+
+Estos ejemplos muestran cómo varían las probabilidades de que un tumor sea canceroso a medida 
+que cambia su tamaño.
+"""
+
+if __name__ == "__main__":
+    print("\n¡Finalizada la guía de regresión logística!")
