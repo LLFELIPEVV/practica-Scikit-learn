@@ -27,3 +27,24 @@ log_odds = logr.coef_
 odds = numpy.exp(log_odds)
 print(odds)
 # Esto indica que a medida que el tumor aumenta 1cm, las probabilidades de que sea un tumor canceroso aumentan en 4x.
+
+# Probabilidad
+# Los valores del coeficiente y la interseccion se pueden utilizar para encontrar la probabilidad de que cada tumor sea canceroso.
+# Se crea una funcion que retorna un valor que representa la probabilidad de que la observacion dada sea un tumor.
+def logit2prob(logr, x):
+    log_odds = logr.coef_ * x + logr.intercept_
+    odds = numpy.exp(log_odds)
+    probability = odds / (1 + odds)
+    return probability
+
+
+# Para encontrar las probabilidades logarítmicas de cada observación, primero debemos crear una fórmula que se parezca a la de la regresión lineal, extrayendo el coeficiente y la intersección.
+# Para luego convertir las probabilidades logarítmicas en probabilidades debemos potenciar las probabilidades logarítmicas.
+# Ahora que tenemos las probabilidades, podemos convertirlas en probabilidad dividiéndolas por 1 más las probabilidades.
+# Utilicemos ahora la función con lo aprendido para averiguar la probabilidad de que cada tumor sea canceroso.
+print(logit2prob(logr, X))
+
+# Resultados explicados
+# 3.78 0.61 La probabilidad de que un tumor con un tamaño de 3,78 cm sea canceroso es del 61%.
+# 2.44 0.19 La probabilidad de que un tumor con un tamaño de 2,44 cm sea canceroso es del 19%.
+# 2.09 0.13 La probabilidad de que un tumor con un tamaño de 2,09 cm sea canceroso es del 13%.
