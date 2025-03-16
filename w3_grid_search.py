@@ -1,3 +1,5 @@
+import numpy as np
+
 from sklearn import datasets
 from sklearn.linear_model import LogisticRegression
 
@@ -24,3 +26,26 @@ logit = LogisticRegression(max_iter=10000)
 print(logit.fit(X, y))
 print(logit.score(X, y))
 # Con la configuracion predeterminada de C = 1, logramos una puntuacion de 0.973.
+
+# Implementacion de la busqueda de cuadricula
+# Ahora observaremos los resultados utilizando un rango de parametros de C.
+# Como el valor predeterminado de C es 1 el rango se establecera con valores cercanos al 1.
+C = np.array(np.random.normal(loc=1, scale=1, size=3000))
+C = C[C > 0]
+
+scores = {}
+max_score = -np.inf  # Inicializamos con un valor muy bajo
+best_choice = None
+
+for c in C:
+    logit.set_params(C=c)
+    logit.fit(X, y)
+    score = logit.score(X, y)
+    scores[c] = score
+    if score > max_score:
+        max_score = score
+        best_choice = c
+
+print("Mejor score:", max_score, "con C:", best_choice)
+
+# El valor de C en 1,75 obtuvo un aumento de presicion, sin embargo subirlo apartir de este no contribuye al aumento de presicion.
