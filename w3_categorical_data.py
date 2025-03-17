@@ -28,3 +28,16 @@ predictedCO2 = regr.predict(
     [[2300, 1300, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]])
 
 print(predictedCO2)
+
+# Dummizing
+# No es necesario crear una columna por cada grupo de su categoria. La informacion se puede conservar usando una columna menos que el numero de grupos que tenga.
+# Por ejemplo en vez de tener una columna para rojo y una para azul, se tiene solo una para rojo y el resultado seria 1 es rojo y 0 es no rojo lo que significa que es azul.
+colors = pd.DataFrame({'color': ['blue', 'red']})
+dummies = pd.get_dummies(colors, drop_first=True)
+print(dummies)
+
+# Funciona igual con mas categorias
+colors = pd.DataFrame({'color': ['blue', 'red', 'green']})
+dummies = pd.get_dummies(colors, drop_first=True)
+dummies['color'] = colors['color']
+print(dummies)
