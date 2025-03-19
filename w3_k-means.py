@@ -35,3 +35,10 @@ kmeans.fit(data)
 
 plt.scatter(x, y, c=kmeans.labels_)
 plt.show()
+
+# Ejemplo explicado:
+# En este ejemplo se usaron solo 2 variables pero este metodo funciona con cualquier numero de variables.
+# Se deben convertir los datos en un conjunto de puntos.
+# Para encontrar el mejor valor de K, necesitamos ejecutar K-medias en los datos con un rango de valores posibles.
+# En este ejemplo tenemos 10 puntos por lo que el rango minimo de K es 1 y el maximo es 10.
+# Se escoge el 2 como valor de K ya que en el grafico se como en este punto la grafica empieza a ser mas lienal.
