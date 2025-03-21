@@ -56,3 +56,7 @@ plt.ylabel("score", fontsize=18)
 plt.tick_params(labelsize=16)
 
 plt.show()
+
+# Resultados explicados
+# Se observa un incremento en el rendimiento del modelo del 82,2% al 95,5%.
+# El mejor rendimiento se observa en el rango de 10-14 estimadores.
