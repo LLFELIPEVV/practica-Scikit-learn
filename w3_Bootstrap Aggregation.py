@@ -1,5 +1,8 @@
+import matplotlib.pyplot as plt
+
 from sklearn import datasets
 from sklearn.metrics import accuracy_score
+from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 
@@ -29,3 +32,27 @@ print("Train data accuracy:", accuracy_score(
 print("Test data accuracy:", accuracy_score(y_true=y_test, y_pred=y_pred))
 
 # El clasificador base funciona bastante bien en el conjunto de datos y logra una presicion del 82% en el conjunto de pruebas con los parametros actuales.
+
+# Creando un clasificador Bagging
+# Para realizar el bagging necesitamos establecer el parametro n_estimators, este es el numero de clasificadores base que el modelo va a agregar.
+# Para este conjunto de datos el numero de estimadores que se usaran es relativamente bajo, a menudo se exploran rangos mucho mas amplios. Este ajuste de hiperparametros suele realizarse mediante busqueda de cuadricula.
+estimator_range = [2, 4, 6, 8, 10, 12, 14, 16]
+
+models = []
+scores = []
+
+for n_estimators in estimator_range:
+    clf = BaggingClassifier(n_estimators=n_estimators, random_state=22)
+    clf.fit(X_train, y_train)
+
+    models.append(clf)
+    scores.append(accuracy_score(y_true=y_test, y_pred=clf.predict(X_test)))
+
+plt.figure(figsize=(9, 6))
+plt.plot(estimator_range, scores)
+
+plt.xlabel("n_estimators", fontsize=18)
+plt.ylabel("score", fontsize=18)
+plt.tick_params(labelsize=16)
+
+plt.show()
