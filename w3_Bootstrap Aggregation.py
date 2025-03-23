@@ -60,3 +60,11 @@ plt.show()
 # Resultados explicados
 # Se observa un incremento en el rendimiento del modelo del 82,2% al 95,5%.
 # El mejor rendimiento se observa en el rango de 10-14 estimadores.
+
+# Otra forma de evaluacion
+# Debido a que bootstrap selecciona subconjuntos aleatorios de observaciones para crear clasificadores, algunas se omiten en el proceso, por eso estas observaciones "fuera de bolsa" pueden utilizarse para evaluar el modelo.
+# Se evaluara el modelo con la puntuacion out-of-bag.
+oob_model = BaggingClassifier(n_estimators=12, oob_score=True, random_state=22)
+oob_model.fit(X_train, y_train)
+print(oob_model.oob_score_)
+
