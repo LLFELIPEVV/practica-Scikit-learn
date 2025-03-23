@@ -1,76 +1,120 @@
+"""
+Guía de Ensamblaje con Bagging (Bootstrap Aggregation) para Clasificación
+========================================================================
+
+El bagging es una técnica de ensamblaje que mejora el desempeño de modelos
+como los árboles de decisión, reduciendo el sobreajuste. La idea es entrenar
+varios clasificadores base en subconjuntos aleatorios (con reemplazo) del conjunto
+de datos y luego combinar sus predicciones mediante votación mayoritaria.
+
+En este ejemplo utilizaremos el dataset de vinos para:
+  1. Evaluar un clasificador base (árbol de decisión) sin bagging.
+  2. Aplicar bagging variando el número de estimadores (clasificadores base)
+     y analizar cómo mejora la precisión.
+  3. Evaluar el rendimiento mediante la puntuación "out-of-bag" (OOB).
+  4. Visualizar uno de los árboles de decisión generados por el clasificador Bagging.
+
+Se utilizará Seaborn para mejorar la apariencia de los gráficos.
+"""
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
 
-from sklearn import datasets
-from sklearn.metrics import accuracy_score
 from sklearn.ensemble import BaggingClassifier
+from sklearn import datasets, linear_model, metrics
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 
-# Bagging
-# Metodos como los arboles de decision pueden ser propensos a sobreajustes en el conjunto de entrenamiento, lo que puede generar predicciones erroneas en nuevos datos.
-# La agregacion bootstrap es un metodo de ensamblaje que intenta resolver el sobreajuste en problemas de clasificacion o regresion. Bagging busca mejorar la presicion y el rendimiento de los algoritmos de aprendizaje automatico. Para ello, toma subconjuntos aleatorios de un conjunto de datos original, con remplazo, y ajusta un clasificador o un regresor a cada subconjunto.
-# Las predicciones de cada subconjunto se agregan mediante votacion mayoritaria en el caso de clasificacion y promediando para la regresion, lo que aumenta la presicion de la prediccion.
+# Configurar Seaborn para gráficos con buen estilo
+sns.set_theme(style="whitegrid", font_scale=1.2)
 
-# Evaluacion de un clasificador base
-# Primero revisaremos el rendimiento del clasificador base en el conjunto de datos.
-# Haremos un modelo que identifique diferentes clases de vinos.
+# -----------------------------------------------------------------------------
+# 1. Evaluación del Clasificador Base (Árbol de Decisión) sin Bagging
+# -----------------------------------------------------------------------------
+# Cargamos el dataset de vinos
 data = datasets.load_wine(as_frame=True)
+X = data.data       # Características
+y = data.target     # Etiquetas (clases de vino)
 
-X = data.data
-y = data.target
-
+# Dividir los datos en conjuntos de entrenamiento y prueba (75% train, 25% test)
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.25, random_state=22)
 
+# Crear y entrenar un árbol de decisión
 dtree = DecisionTreeClassifier(random_state=22)
 dtree.fit(X_train, y_train)
 
+# Realizar predicciones y evaluar la precisión
 y_pred = dtree.predict(X_test)
+accuracy_base_train = metrics.accuracy_score(y_train, dtree.predict(X_train))
+accuracy_base_test = metrics.accuracy_score(y_test, y_pred)
+print("Precisión del árbol de decisión (entrenamiento):", accuracy_base_train)
+print("Precisión del árbol de decisión (prueba):", accuracy_base_test)
+# Con la configuración predeterminada, el clasificador base tiene una precisión de alrededor del 82%.
 
-print("Train data accuracy:", accuracy_score(
-    y_true=y_train, y_pred=dtree.predict(X_train)))
-print("Test data accuracy:", accuracy_score(y_true=y_test, y_pred=y_pred))
-
-# El clasificador base funciona bastante bien en el conjunto de datos y logra una presicion del 82% en el conjunto de pruebas con los parametros actuales.
-
-# Creando un clasificador Bagging
-# Para realizar el bagging necesitamos establecer el parametro n_estimators, este es el numero de clasificadores base que el modelo va a agregar.
-# Para este conjunto de datos el numero de estimadores que se usaran es relativamente bajo, a menudo se exploran rangos mucho mas amplios. Este ajuste de hiperparametros suele realizarse mediante busqueda de cuadricula.
+# -----------------------------------------------------------------------------
+# 2. Búsqueda del Mejor Número de Estimadores para Bagging
+# -----------------------------------------------------------------------------
+# Se probarán diferentes valores para n_estimators (número de clasificadores base)
 estimator_range = [2, 4, 6, 8, 10, 12, 14, 16]
-
 models = []
 scores = []
 
 for n_estimators in estimator_range:
     clf = BaggingClassifier(n_estimators=n_estimators, random_state=22)
     clf.fit(X_train, y_train)
-
+    score = metrics.accuracy_score(y_test, clf.predict(X_test))
     models.append(clf)
-    scores.append(accuracy_score(y_true=y_test, y_pred=clf.predict(X_test)))
+    scores.append(score)
 
+# Visualizar la relación entre el número de estimadores y la precisión usando Seaborn
 plt.figure(figsize=(9, 6))
-plt.plot(estimator_range, scores)
-
-plt.xlabel("n_estimators", fontsize=18)
-plt.ylabel("score", fontsize=18)
-plt.tick_params(labelsize=16)
-
+sns.lineplot(x=estimator_range, y=scores, marker="o", color="mediumseagreen")
+plt.title("Método del Codo para Bagging")
+plt.xlabel("Número de Estimadores (n_estimators)", fontsize=18)
+plt.ylabel("Precisión del Modelo", fontsize=18)
+plt.xticks(estimator_range, fontsize=16)
+plt.yticks(fontsize=16)
 plt.show()
 
-# Resultados explicados
-# Se observa un incremento en el rendimiento del modelo del 82,2% al 95,5%.
-# El mejor rendimiento se observa en el rango de 10-14 estimadores.
+print("Mejores resultados se observan en el rango de 10 a 14 estimadores.")
 
-# Otra forma de evaluacion
-# Debido a que bootstrap selecciona subconjuntos aleatorios de observaciones para crear clasificadores, algunas se omiten en el proceso, por eso estas observaciones "fuera de bolsa" pueden utilizarse para evaluar el modelo.
-# Se evaluara el modelo con la puntuacion out-of-bag.
+# -----------------------------------------------------------------------------
+# 3. Evaluación con Out-of-Bag (OOB)
+# -----------------------------------------------------------------------------
+# El OOB evalúa el modelo en las observaciones no seleccionadas en cada muestra bootstrap.
 oob_model = BaggingClassifier(n_estimators=12, oob_score=True, random_state=22)
 oob_model.fit(X_train, y_train)
-print(oob_model.oob_score_)
+print("Puntuación OOB:", oob_model.oob_score_)
 
-# Generacion de arboles de decision a partir del clasificador Bagging.
-clf = BaggingClassifier(n_estimators=12, random_state=22, oob_score=True)
-clf.fit(X_train, y_train)
+# -----------------------------------------------------------------------------
+# 4. Visualización de un Árbol de Decisión del Ensamble Bagging
+# -----------------------------------------------------------------------------
+# Extraemos uno de los árboles entrenados dentro del clasificador Bagging.
+bagging_clf = BaggingClassifier(
+    n_estimators=12, random_state=22, oob_score=True)
+bagging_clf.fit(X_train, y_train)
+
+# Visualizar el primer árbol del ensamble
 plt.figure(figsize=(30, 20))
-plot_tree(clf.estimators_[0], feature_names=X.columns)
+plot_tree(bagging_clf.estimators_[
+          0], feature_names=X.columns, filled=True, rounded=True, fontsize=10)
+plt.title("Árbol de Decisión Extraído del Clasificador Bagging", fontsize=20)
 plt.show()
+
+# -----------------------------------------------------------------------------
+# 5. Resumen de Resultados
+# -----------------------------------------------------------------------------
+results = {
+    "Precisión del Árbol Base (Entrenamiento)": accuracy_base_train,
+    "Precisión del Árbol Base (Prueba)": accuracy_base_test,
+    "Mejores Puntuaciones con Bagging": scores,
+    "Puntuación OOB": oob_model.oob_score_
+}
+print("\nResumen de Métricas y Evaluaciones:")
+print(results)
+
+if __name__ == "__main__":
+    print("\n¡Finalizada la guía de Bagging con clasificación!")
