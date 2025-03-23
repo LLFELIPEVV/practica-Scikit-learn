@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn.metrics import accuracy_score
 from sklearn.ensemble import BaggingClassifier
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
 
 # Bagging
 # Metodos como los arboles de decision pueden ser propensos a sobreajustes en el conjunto de entrenamiento, lo que puede generar predicciones erroneas en nuevos datos.
@@ -68,3 +68,9 @@ oob_model = BaggingClassifier(n_estimators=12, oob_score=True, random_state=22)
 oob_model.fit(X_train, y_train)
 print(oob_model.oob_score_)
 
+# Generacion de arboles de decision a partir del clasificador Bagging.
+clf = BaggingClassifier(n_estimators=12, random_state=22, oob_score=True)
+clf.fit(X_train, y_train)
+plt.figure(figsize=(30, 20))
+plot_tree(clf.estimators_[0], feature_names=X.columns)
+plt.show()
