@@ -1,6 +1,6 @@
 from sklearn import datasets
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import KFold, StratifiedKFold, cross_val_score
+from sklearn.model_selection import KFold, StratifiedKFold, LeaveOneOut, cross_val_score
 
 # Validacion Cruzada
 # Al ajustar los modelos se busca mejorar el rendimiento general con datos no analizados. Ajustar los hiperparametros puede mejorar considerablemente el rendimiento de los conjuntos de prueba. Sin embargo optimizar los parametros para el conjunto de prueba puede provocar fugas de informacion, lo que empeora el rendimiento del modelo con datos no analizados. Para corregir esto, se puede realizar una validacion cruzada.
@@ -29,3 +29,15 @@ print("Average CV Score: ", scores.mean())
 print("Number of CV Scores used in Average: ", len(scores))
 
 # El numero de pliegues es el mismo pero el CV promedio aumenta a partir del pliegue k basico cuando se asegura que haya clases estratificadas.
+
+# Leave-One-Out (LOO)
+# En lugar de seleccionar el numero de divisiones, se utiliza una observacion para validar y n-1 observaciones para entrenar. Este metodo es una tecnica exhaustiva.
+loo = LeaveOneOut()
+scores = cross_val_score(clf, X, y, cv=loo)
+
+print("Cross Validation Scores: ", scores)
+print("Average CV Score: ", scores.mean())
+print("Number of CV Scores used in Average: ", len(scores))
+# El numero de puntuaciones de validacion cruzada realizadas es igual al numero de observaciones en el conjunto de datos.
+# En este caso hay 150 observaciones en el conjunto de iris.
+# La puntuacion media de CV es del 94%
