@@ -1,6 +1,6 @@
 from sklearn import datasets
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import KFold, StratifiedKFold, LeaveOneOut, LeavePOut, cross_val_score
+from sklearn.model_selection import KFold, StratifiedKFold, LeaveOneOut, LeavePOut, ShuffleSplit, cross_val_score
 
 # Validacion Cruzada
 # Al ajustar los modelos se busca mejorar el rendimiento general con datos no analizados. Ajustar los hiperparametros puede mejorar considerablemente el rendimiento de los conjuntos de prueba. Sin embargo optimizar los parametros para el conjunto de prueba puede provocar fugas de informacion, lo que empeora el rendimiento del modelo con datos no analizados. Para corregir esto, se puede realizar una validacion cruzada.
@@ -52,3 +52,11 @@ print("Average CV Score: ", scores.mean())
 print("Number of CV Scores used in Average: ", len(scores))
 # Se calculan muchos mas puntajes que LOO, incluso con p=2 aunque logra aproximadamente el mismo puntaje CV promedio.
 
+# Shuffle Split
+# A diferencia de K-Fold, Shuffle Split excluye el porcentaje de los datos que no se utilizara en los conjuntos de entrenamiento ni de validacion. Para ello debemos determinar el tamaño del entrenamiento y de la prueba, asi como el numero de divisiones.
+ss = ShuffleSplit(train_size=0.6, test_size=0.3, n_splits=5)
+scores = cross_val_score(clf, X, y, cv=ss)
+
+print("Cross Validation Scores: ", scores)
+print("Average CV Score: ", scores.mean())
+print("Number of CV Scores used in Average: ", len(scores))
