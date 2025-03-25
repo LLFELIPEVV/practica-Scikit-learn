@@ -1,62 +1,104 @@
+"""
+Guía de Validación Cruzada para Modelos de Clasificación
+=======================================================
+
+La validación cruzada es una técnica para evaluar el rendimiento de un modelo en datos no vistos, evitando sobreajustes.
+
+Algunos métodos incluyen:
+  1. K-Fold: Divide los datos en k subconjuntos para entrenar y validar iterativamente.
+  2. Stratified K-Fold: Similar a K-Fold, pero preserva la proporción de clases.
+  3. Leave-One-Out (LOO): Usa una observación como validación y el resto como entrenamiento.
+  4. Leave-P-Out (LPO): Similar a LOO, pero permite elegir más de una observación para validación.
+  5. Shuffle Split: Divide los datos aleatoriamente en entrenamiento y validación varias veces.
+
+Se utilizará el dataset Iris y Seaborn para mejorar las visualizaciones.
+"""
+
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import KFold, StratifiedKFold, LeaveOneOut, LeavePOut, ShuffleSplit, cross_val_score
+from sklearn.model_selection import (
+    KFold, StratifiedKFold, LeaveOneOut, LeavePOut, ShuffleSplit, cross_val_score
+)
 
-# Validacion Cruzada
-# Al ajustar los modelos se busca mejorar el rendimiento general con datos no analizados. Ajustar los hiperparametros puede mejorar considerablemente el rendimiento de los conjuntos de prueba. Sin embargo optimizar los parametros para el conjunto de prueba puede provocar fugas de informacion, lo que empeora el rendimiento del modelo con datos no analizados. Para corregir esto, se puede realizar una validacion cruzada.
+# Configurar Seaborn
+sns.set_theme(style="whitegrid", font_scale=1.2)
+
+# -----------------------------------------------------------------------------
+# Cargar el Dataset
+# -----------------------------------------------------------------------------
 X, y = datasets.load_iris(return_X_y=True)
-# Exiten muchos metodos para realizar la validacion cruzada.
 
-# K-fold
-# Los datos de prueba se dividen en k conjuntos de igual tamaño para validar el modelo.
-# El modelo se entrena con k-1 pliegues del conjunto de entrenamiento.
-# El pliegue restante se usa como conjunto de validacion para evaluar el modelo.
+# Crear el clasificador base
 clf = DecisionTreeClassifier(random_state=42)
+
+# -----------------------------------------------------------------------------
+# 1. K-Fold Cross Validation
+# -----------------------------------------------------------------------------
 k_folds = KFold(n_splits=5)
-scores = cross_val_score(clf, X, y, cv=k_folds)
+kfold_scores = cross_val_score(clf, X, y, cv=k_folds)
 
-print("Cross Validation Scores: ", scores)
-print("Average CV Score: ", scores.mean())
-print("Number of CV Scores used in Average: ", len(scores))
+print("\nK-Fold Cross Validation Scores:", kfold_scores)
+print("Average CV Score:", kfold_scores.mean())
 
-# Stratified K-Fold
-# En casos de desequilibrio de clases, necesitamos una forma de explicarlo tanto en los conjuntos de entrenamiento como en los de validacion. Para ello podemos estratificar las clases objetivo, lo que significa que ambos conjuntos tendran la misma proporcion de todas las clases.
+# -----------------------------------------------------------------------------
+# 2. Stratified K-Fold Cross Validation
+# -----------------------------------------------------------------------------
 sk_fold = StratifiedKFold(n_splits=5)
-scores = cross_val_score(clf, X, y, cv=sk_fold)
+stratified_scores = cross_val_score(clf, X, y, cv=sk_fold)
 
-print("Cross Validation Scores: ", scores)
-print("Average CV Score: ", scores.mean())
-print("Number of CV Scores used in Average: ", len(scores))
+print("\nStratified K-Fold Scores:", stratified_scores)
+print("Average CV Score:", stratified_scores.mean())
 
-# El numero de pliegues es el mismo pero el CV promedio aumenta a partir del pliegue k basico cuando se asegura que haya clases estratificadas.
-
-# Leave-One-Out (LOO)
-# En lugar de seleccionar el numero de divisiones, se utiliza una observacion para validar y n-1 observaciones para entrenar. Este metodo es una tecnica exhaustiva.
+# -----------------------------------------------------------------------------
+# 3. Leave-One-Out (LOO)
+# -----------------------------------------------------------------------------
 loo = LeaveOneOut()
-scores = cross_val_score(clf, X, y, cv=loo)
+loo_scores = cross_val_score(clf, X, y, cv=loo)
 
-print("Cross Validation Scores: ", scores)
-print("Average CV Score: ", scores.mean())
-print("Number of CV Scores used in Average: ", len(scores))
-# El numero de puntuaciones de validacion cruzada realizadas es igual al numero de observaciones en el conjunto de datos.
-# En este caso hay 150 observaciones en el conjunto de iris.
-# La puntuacion media de CV es del 94%
+print("\nLeave-One-Out Cross Validation Scores (first 10 shown):",
+      loo_scores[:10])
+print("Average CV Score:", loo_scores.mean())
 
-# Leave-P-Out (LPO)
-# Es una diferencia matizada con respecto a LOO, en la que podemos seleccionar la cantidad de p que utilizaremos en nuestro conjunto de validacion.
+# -----------------------------------------------------------------------------
+# 4. Leave-P-Out (LPO) con p=2
+# -----------------------------------------------------------------------------
 lpo = LeavePOut(p=2)
-scores = cross_val_score(clf, X, y, cv=lpo)
+lpo_scores = cross_val_score(clf, X, y, cv=lpo)
 
-print("Cross Validation Scores: ", scores)
-print("Average CV Score: ", scores.mean())
-print("Number of CV Scores used in Average: ", len(scores))
-# Se calculan muchos mas puntajes que LOO, incluso con p=2 aunque logra aproximadamente el mismo puntaje CV promedio.
+print("\nLeave-P-Out Cross Validation Scores (first 10 shown):",
+      lpo_scores[:10])
+print("Average CV Score:", lpo_scores.mean())
 
-# Shuffle Split
-# A diferencia de K-Fold, Shuffle Split excluye el porcentaje de los datos que no se utilizara en los conjuntos de entrenamiento ni de validacion. Para ello debemos determinar el tamaño del entrenamiento y de la prueba, asi como el numero de divisiones.
+# -----------------------------------------------------------------------------
+# 5. Shuffle Split
+# -----------------------------------------------------------------------------
 ss = ShuffleSplit(train_size=0.6, test_size=0.3, n_splits=5)
-scores = cross_val_score(clf, X, y, cv=ss)
+ss_scores = cross_val_score(clf, X, y, cv=ss)
 
-print("Cross Validation Scores: ", scores)
-print("Average CV Score: ", scores.mean())
-print("Number of CV Scores used in Average: ", len(scores))
+print("\nShuffle Split Cross Validation Scores:", ss_scores)
+print("Average CV Score:", ss_scores.mean())
+
+# -----------------------------------------------------------------------------
+# Visualización de los Resultados
+# -----------------------------------------------------------------------------
+methods = ["K-Fold", "Stratified K-Fold", "LOO", "LPO (p=2)", "Shuffle Split"]
+scores_means = [
+    kfold_scores.mean(),
+    stratified_scores.mean(),
+    loo_scores.mean(),
+    lpo_scores.mean(),
+    ss_scores.mean(),
+]
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=methods, y=scores_means, palette="coolwarm")
+plt.ylim(0.8, 1)
+plt.ylabel("Precisión Promedio")
+plt.title("Comparación de Técnicas de Validación Cruzada")
+plt.show()
+
+if __name__ == "__main__":
+    print("\n¡Finalizada la guía de validación cruzada!")
