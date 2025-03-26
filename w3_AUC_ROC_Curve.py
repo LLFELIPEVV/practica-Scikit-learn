@@ -31,3 +31,17 @@ print(f'class 1 accuracy: {cf_mat[1][1]/n_1}')
 # Aunque se obtuvo una presicion muy alta, el modelo no proporciono informacion sobre los datos, por lo que no es util.
 # Se predice la clase 1 con una presicion del 100% mientras que la clase 0 es correcta 0%.
 # A costa de la presicion, seria mejor contar con un modelo que pueda separar ligeramente las dos clases.
+
+y_proba_2 = np.array(np.random.uniform(0, .7, n_0).tolist() +
+                     np.random.uniform(.3, 1, n_1).tolist())
+y_pred_2 = y_proba_2 > 0.5
+
+print(f'accuracy score: {accuracy_score(y, y_pred_2)}')
+cf_mat = confusion_matrix(y, y_pred_2)
+print('Confusion matrix')
+print(cf_mat)
+print(f'class 0 accuracy: {cf_mat[0][0]/n_0}')
+print(f'class 1 accuracy: {cf_mat[1][1]/n_1}')
+
+# Para este modelo tenemos menos presicion que el primero, pero la presicion para cada clase es mas equilibrada.
+# Por eso si usaramos solo la metrica de presicion para puntuar un modelo el mejor modelo seria el primero.
