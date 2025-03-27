@@ -66,3 +66,30 @@ print(f'model 2 AUC score: {roc_auc_score(y, y_proba_2)}')
 
 # Una puntuacion de AUC de 0,5 significa que el modelo no es capaz de distinguir entre las dos clases y la curva se veria como una linea pendiente de 1.
 # Una puntuacion de AUC mas cercana a 1, significaria que el modelo tiene la capacidad de separar las dos clases, y la curva se acercaria a la esquina superior izquierda.
+
+# Probabilidades
+# Debido a que el AUC es una metrica que utiliza probabilidades de las predicciones de clase, nos permite saber que modelo es mejor incluso si tienen presiciones similares.
+# En el siguiente ejemplo se usaran dos modelos, el primero con probabilidades menos fiables al predecir las dos clases y el segundo con probabilidades mas fiables de predecir las dos clases.
+y = np.array([0] * n + [1] * n)
+y_prob_1 = np.array(
+    np.random.uniform(.25, .5, n//2).tolist() +
+    np.random.uniform(.3, .7, n).tolist() +
+    np.random.uniform(.5, .75, n//2).tolist()
+)
+y_prob_2 = np.array(
+    np.random.uniform(0, .4, n//2).tolist() +
+    np.random.uniform(.3, .7, n).tolist() +
+    np.random.uniform(.6, 1, n//2).tolist()
+)
+
+print(f'model 1 accuracy score: {accuracy_score(y, y_prob_1 > .5)}')
+print(f'model 2 accuracy score: {accuracy_score(y, y_prob_2 > .5)}')
+
+print(f'model 1 AUC score: {roc_auc_score(y, y_prob_1)}')
+print(f'model 2 AUC score: {roc_auc_score(y, y_prob_2)}')
+
+plot_roc_curve(y, y_prob_1)
+
+fpr, tpr, thresholds = roc_curve(y, y_prob_2)
+plt.plot(fpr, tpr)
+plt.show()
