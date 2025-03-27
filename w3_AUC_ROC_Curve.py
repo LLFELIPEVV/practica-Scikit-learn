@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score, roc_curve
 
@@ -45,3 +46,23 @@ print(f'class 1 accuracy: {cf_mat[1][1]/n_1}')
 
 # Para este modelo tenemos menos presicion que el primero, pero la presicion para cada clase es mas equilibrada.
 # Por eso si usaramos solo la metrica de presicion para puntuar un modelo el mejor modelo seria el primero.
+
+# En casos como este, seria preferible utilizar otra metrica de evaluacion como el AUC.
+
+
+def plot_roc_curve(true_y, y_prob):
+    fpr, tpr, thresholds = roc_curve(true_y, y_prob)
+    plt.plot(fpr, tpr)
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.show()
+
+
+plot_roc_curve(y, y_proba)
+print(f'model 1 AUC score: {roc_auc_score(y, y_proba)}')
+
+plot_roc_curve(y, y_proba_2)
+print(f'model 2 AUC score: {roc_auc_score(y, y_proba_2)}')
+
+# Una puntuacion de AUC de 0,5 significa que el modelo no es capaz de distinguir entre las dos clases y la curva se veria como una linea pendiente de 1.
+# Una puntuacion de AUC mas cercana a 1, significaria que el modelo tiene la capacidad de separar las dos clases, y la curva se acercaria a la esquina superior izquierda.
