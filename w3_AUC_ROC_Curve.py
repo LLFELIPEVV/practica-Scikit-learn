@@ -1,95 +1,110 @@
-import numpy as np
-import matplotlib.pyplot as plt
+"""
+Evaluación de Modelos con Curvas ROC y AUC
+==========================================
 
+El área bajo la curva ROC (AUC) mide qué tan bien un modelo separa dos clases,
+siendo más útil en datos desbalanceados donde la precisión no siempre refleja
+el desempeño real.
+
+Ejemplo:
+  - Se simulan conjuntos de datos desbalanceados con modelos de clasificación binaria.
+  - Se analizan la matriz de confusión y las curvas ROC para evaluar su desempeño.
+
+Se utilizará Seaborn para mejorar las visualizaciones.
+"""
+
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score, roc_curve
 
-# Curva AUC-ROC
-# En la clasificacion existen, muchas metricas de evaluacion diferentes. La mas popular es la presicion, que mide la frecuencia con la que el modelo acierta.
-# En algunos casos, se podria considerar el uso de otra metrica de evaluacion.
-# Una de esas metricas es el AUC (area bajo la curva ROC). Esta curva representa la tasa de verdaderos positivos frente a la de falsos positivos en diferentes umbrales de clasificacion. Los umbrales son diferentes puntos de corte de probabilidad que separan las dos clases en la clasificacion binaria.
-# Esta utiliza la probabilidad para indicar la presicion con la que un modelo separa clases.
+# Configuración de estilo
+sns.set_theme(style="whitegrid", font_scale=1.2)
 
+# -----------------------------------------------------------------------------
 # Datos desequilibrados
-# Supongamos que tenemos un conjunto de datos desequilibrados donde la mayoria de nuestros datos tienen un solo valor.
-# Podemos obtener una alta presicion del modelo prediciendo la clase mayoritaria.
+# -----------------------------------------------------------------------------
 n = 10000
-ratio = .95
+ratio = 0.95  # 95% de la clase mayoritaria
 n_0 = int((1 - ratio) * n)
 n_1 = int(ratio * n)
 
 y = np.array([0] * n_0 + [1] * n_1)
 
-y_proba = np.array([1] * n)
+# Modelo inicial sin poder de separación
+y_proba = np.ones(n)
 y_pred = y_proba > 0.5
 
-print(f'accuracy score: {accuracy_score(y, y_pred)}')
+# Evaluación del modelo
+print(f'Accuracy Score: {accuracy_score(y, y_pred)}')
 cf_mat = confusion_matrix(y, y_pred)
-print('Confusion matrix')
-print(cf_mat)
-print(f'class 0 accuracy: {cf_mat[0][0]/n_0}')
-print(f'class 1 accuracy: {cf_mat[1][1]/n_1}')
+print('Confusion Matrix:\n', cf_mat)
+print(f'Clase 0 Accuracy: {cf_mat[0][0] / n_0:.2f}')
+print(f'Clase 1 Accuracy: {cf_mat[1][1] / n_1:.2f}')
 
-# Aunque se obtuvo una presicion muy alta, el modelo no proporciono informacion sobre los datos, por lo que no es util.
-# Se predice la clase 1 con una presicion del 100% mientras que la clase 0 es correcta 0%.
-# A costa de la presicion, seria mejor contar con un modelo que pueda separar ligeramente las dos clases.
-
-y_proba_2 = np.array(np.random.uniform(0, .7, n_0).tolist() +
-                     np.random.uniform(.3, 1, n_1).tolist())
+# -----------------------------------------------------------------------------
+# Modelo con mejor discriminación de clases
+# -----------------------------------------------------------------------------
+y_proba_2 = np.concatenate([
+    np.random.uniform(0, 0.7, n_0),
+    np.random.uniform(0.3, 1, n_1)
+])
 y_pred_2 = y_proba_2 > 0.5
 
-print(f'accuracy score: {accuracy_score(y, y_pred_2)}')
+# Evaluación del modelo mejorado
+print(f'\nAccuracy Score: {accuracy_score(y, y_pred_2)}')
 cf_mat = confusion_matrix(y, y_pred_2)
-print('Confusion matrix')
-print(cf_mat)
-print(f'class 0 accuracy: {cf_mat[0][0]/n_0}')
-print(f'class 1 accuracy: {cf_mat[1][1]/n_1}')
-
-# Para este modelo tenemos menos presicion que el primero, pero la presicion para cada clase es mas equilibrada.
-# Por eso si usaramos solo la metrica de presicion para puntuar un modelo el mejor modelo seria el primero.
-
-# En casos como este, seria preferible utilizar otra metrica de evaluacion como el AUC.
+print('Confusion Matrix:\n', cf_mat)
+print(f'Clase 0 Accuracy: {cf_mat[0][0] / n_0:.2f}')
+print(f'Clase 1 Accuracy: {cf_mat[1][1] / n_1:.2f}')
 
 
-def plot_roc_curve(true_y, y_prob):
-    fpr, tpr, thresholds = roc_curve(true_y, y_prob)
-    plt.plot(fpr, tpr)
+# -----------------------------------------------------------------------------
+# Función para graficar curvas ROC
+# -----------------------------------------------------------------------------
+def plot_roc_curve(true_y, y_prob, title):
+    fpr, tpr, _ = roc_curve(true_y, y_prob)
+    plt.figure(figsize=(8, 6))
+    plt.plot(
+        fpr, tpr, label=f'AUC: {roc_auc_score(true_y, y_prob):.2f}', linewidth=2)
+    plt.plot([0, 1], [0, 1], linestyle='--', color='gray')
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
+    plt.title(title)
+    plt.legend()
     plt.show()
 
 
-plot_roc_curve(y, y_proba)
-print(f'model 1 AUC score: {roc_auc_score(y, y_proba)}')
+# Curvas ROC
+plot_roc_curve(y, y_proba, "Modelo 1 - ROC Curve")
+plot_roc_curve(y, y_proba_2, "Modelo 2 - ROC Curve")
 
-plot_roc_curve(y, y_proba_2)
-print(f'model 2 AUC score: {roc_auc_score(y, y_proba_2)}')
-
-# Una puntuacion de AUC de 0,5 significa que el modelo no es capaz de distinguir entre las dos clases y la curva se veria como una linea pendiente de 1.
-# Una puntuacion de AUC mas cercana a 1, significaria que el modelo tiene la capacidad de separar las dos clases, y la curva se acercaria a la esquina superior izquierda.
-
-# Probabilidades
-# Debido a que el AUC es una metrica que utiliza probabilidades de las predicciones de clase, nos permite saber que modelo es mejor incluso si tienen presiciones similares.
-# En el siguiente ejemplo se usaran dos modelos, el primero con probabilidades menos fiables al predecir las dos clases y el segundo con probabilidades mas fiables de predecir las dos clases.
+# -----------------------------------------------------------------------------
+# Modelos con diferentes probabilidades de predicción
+# -----------------------------------------------------------------------------
 y = np.array([0] * n + [1] * n)
-y_prob_1 = np.array(
-    np.random.uniform(.25, .5, n//2).tolist() +
-    np.random.uniform(.3, .7, n).tolist() +
-    np.random.uniform(.5, .75, n//2).tolist()
-)
-y_prob_2 = np.array(
-    np.random.uniform(0, .4, n//2).tolist() +
-    np.random.uniform(.3, .7, n).tolist() +
-    np.random.uniform(.6, 1, n//2).tolist()
-)
 
-print(f'model 1 accuracy score: {accuracy_score(y, y_prob_1 > .5)}')
-print(f'model 2 accuracy score: {accuracy_score(y, y_prob_2 > .5)}')
+y_prob_1 = np.concatenate([
+    np.random.uniform(0.25, 0.5, n//2),
+    np.random.uniform(0.3, 0.7, n),
+    np.random.uniform(0.5, 0.75, n//2)
+])
 
-print(f'model 1 AUC score: {roc_auc_score(y, y_prob_1)}')
-print(f'model 2 AUC score: {roc_auc_score(y, y_prob_2)}')
+y_prob_2 = np.concatenate([
+    np.random.uniform(0, 0.4, n//2),
+    np.random.uniform(0.3, 0.7, n),
+    np.random.uniform(0.6, 1, n//2)
+])
 
-plot_roc_curve(y, y_prob_1)
+# Comparación de métricas
+print(f'\nModelo 1 Accuracy: {accuracy_score(y, y_prob_1 > 0.5):.2f}')
+print(f'Modelo 2 Accuracy: {accuracy_score(y, y_prob_2 > 0.5):.2f}')
+print(f'Modelo 1 AUC Score: {roc_auc_score(y, y_prob_1):.2f}')
+print(f'Modelo 2 AUC Score: {roc_auc_score(y, y_prob_2):.2f}')
 
-fpr, tpr, thresholds = roc_curve(y, y_prob_2)
-plt.plot(fpr, tpr)
-plt.show()
+# Curvas ROC para ambos modelos
+plot_roc_curve(y, y_prob_1, "Modelo 1 - ROC Curve")
+plot_roc_curve(y, y_prob_2, "Modelo 2 - ROC Curve")
+
+if __name__ == "__main__":
+    print("\nFinalizada la evaluación de modelos con AUC-ROC.")
