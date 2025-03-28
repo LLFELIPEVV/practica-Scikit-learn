@@ -37,3 +37,6 @@ prediction = knn.predict(new_point)
 plt.scatter(x + [new_x], y + [new_y], c=classes + [prediction[0]])
 plt.text(x=new_x-1.7, y=new_y-0.7, s=f"new point, class: {prediction[0]}")
 plt.show()
+
+# Explicacion
+# Cuando usamos solo un vecino para clasificar la prediccion del nuevo punto tomaba la clase 0, debido a que el vecino mas cercano tiene la clase 0, pero al usar 5 vecinos el nuevo punto tomo la clase 1, debido a que tenia una mayoria de vecinos de la clase 1 que de la clase 0.
