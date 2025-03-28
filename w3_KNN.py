@@ -1,42 +1,86 @@
-import matplotlib.pyplot as plt
+"""
+Clasificación con K-Nearest Neighbors (KNN)
+===========================================
 
+KNN es un algoritmo de clasificación supervisado basado en la vecindad de los puntos.
+  - K representa el número de vecinos más cercanos utilizados para predecir una clase.
+  - Valores más altos de K generan decisiones más estables y menos sensibles a valores atípicos.
+
+En este script, se ilustra cómo cambia la predicción de un nuevo punto al ajustar el valor de K.
+"""
+
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.neighbors import KNeighborsClassifier
 
-# KNN es un algoritmo de aprendizaje automatico supervisado.
-# K es el numero de vecinos mas cercanos que se utilizaran para la clasificacion.
-# Para la clasificacion se utiliza una mayoria de votos para determinar la clase a la que debe pertenecer una nueva observacion.
-# Valores mayores de K suelen ser mas robustos a los valores atipicos y producen limites de decision mas estables que valores muy pequeños.
+# Configuración de estilo
+sns.set(style="whitegrid", font_scale=1.2)
+
+# Datos de ejemplo
 x = [4, 5, 10, 4, 3, 11, 14, 8, 10, 12]
 y = [21, 19, 24, 17, 16, 25, 24, 22, 21, 21]
 classes = [0, 0, 1, 0, 0, 1, 1, 0, 1, 1]
 
-plt.scatter(x, y, c=classes)
+# Visualización inicial
+plt.figure(figsize=(6, 5))
+plt.scatter(x, y, c=classes, cmap="coolwarm", edgecolors="k", s=100)
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.title("Distribución de datos con clases")
+plt.colorbar(label="Clase")
 plt.show()
 
-# Ahora se creara el modelo con el algoritmo KNN con K=1
+# -----------------------------------------------------------------------------
+# Modelo KNN con K = 1
+# -----------------------------------------------------------------------------
 data = list(zip(x, y))
-knn = KNeighborsClassifier(n_neighbors=1)
-knn.fit(data, classes)
+knn_1 = KNeighborsClassifier(n_neighbors=1)
+knn_1.fit(data, classes)
 
-new_x = 8
-new_y = 21
+new_x, new_y = 8, 21
 new_point = [(new_x, new_y)]
 
-prediction = knn.predict(new_point)
+prediction_1 = knn_1.predict(new_point)[0]
 
-plt.scatter(x + [new_x], y + [new_y], c=classes + [prediction[0]])
-plt.text(x=new_x-1.7, y=new_y-0.7, s=f"new point, class: {prediction[0]}")
+# Visualización de la predicción
+plt.figure(figsize=(6, 5))
+plt.scatter(x + [new_x], y + [new_y], c=classes +
+            [prediction_1], cmap="coolwarm", edgecolors="k", s=100)
+plt.text(new_x - 1.7, new_y - 0.7,
+         s=f"Nuevo punto, Clase: {prediction_1}", fontsize=12, color="black")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.title("Clasificación con K=1")
+plt.colorbar(label="Clase")
 plt.show()
 
-# Ahora con un valor mayor para K
-knn = KNeighborsClassifier(n_neighbors=5)
-knn.fit(data, classes)
+# -----------------------------------------------------------------------------
+# Modelo KNN con K = 5
+# -----------------------------------------------------------------------------
+knn_5 = KNeighborsClassifier(n_neighbors=5)
+knn_5.fit(data, classes)
 
-prediction = knn.predict(new_point)
+prediction_5 = knn_5.predict(new_point)[0]
 
-plt.scatter(x + [new_x], y + [new_y], c=classes + [prediction[0]])
-plt.text(x=new_x-1.7, y=new_y-0.7, s=f"new point, class: {prediction[0]}")
+# Visualización de la predicción con K=5
+plt.figure(figsize=(6, 5))
+plt.scatter(x + [new_x], y + [new_y], c=classes +
+            [prediction_5], cmap="coolwarm", edgecolors="k", s=100)
+plt.text(new_x - 1.7, new_y - 0.7,
+         s=f"Nuevo punto, Clase: {prediction_5}", fontsize=12, color="black")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.title("Clasificación con K=5")
+plt.colorbar(label="Clase")
 plt.show()
 
-# Explicacion
-# Cuando usamos solo un vecino para clasificar la prediccion del nuevo punto tomaba la clase 0, debido a que el vecino mas cercano tiene la clase 0, pero al usar 5 vecinos el nuevo punto tomo la clase 1, debido a que tenia una mayoria de vecinos de la clase 1 que de la clase 0.
+# -----------------------------------------------------------------------------
+# Explicación
+# -----------------------------------------------------------------------------
+"""
+Cuando K=1, la clasificación depende únicamente del vecino más cercano.
+  - En este caso, el vecino más próximo pertenece a la clase 0, por lo que el nuevo punto es clasificado como 0.
+
+Cuando K=5, la clasificación depende de los cinco vecinos más cercanos.
+  - Aquí, la mayoría de los vecinos pertenecen a la clase 1, lo que cambia la clasificación del nuevo punto a 1.
+"""
