@@ -45,3 +45,14 @@ print(constants.pico)
 print(constants.femto)
 print(constants.atto)
 print(constants.zepto)
+
+# Prefijos Binarios
+# Devuelve la unidad en bytes.
+print(constants.kibi)
+print(constants.mebi)
+print(constants.gibi)
+print(constants.tebi)
+print(constants.pebi)
+print(constants.exbi)
+print(constants.zebi)
+print(constants.yobi)
